@@ -3392,17 +3392,14 @@
     }
 
    async function fetchLocalWeather() {
+    // Replace these numbers with your exact latitude and longitude
+    const latitude = 40.6298;
+    const longitude = -91.3145;
+
+    const unit = getWeatherUnitPreference();
+    const tempUnitParam = unit === 'f' ? '&temperature_unit=fahrenheit' : '';
+
     try {
-        // Automatically get approximate latitude and longitude from IP
-        const locRes = await fetch('https://ipapi.co/json/');
-        const locData = await locRes.json();
-        
-        const latitude = locData.latitude;
-        const longitude = locData.longitude;
-
-        const unit = getWeatherUnitPreference();
-        const tempUnitParam = unit === 'f' ? '&temperature_unit=fahrenheit' : '';
-
         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true${tempUnitParam}`);
         const weatherData = await weatherRes.json();
 
