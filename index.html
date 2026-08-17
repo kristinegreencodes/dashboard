@@ -3391,35 +3391,36 @@
         return locale === 'en-US' ? 'f' : 'c';
     }
 
-   async function fetchLocalWeather() {
-    try {
-        // 1. Bypass localStorage completely to prevent security crashes
-        const unit = 'f'; 
-        const tempUnitParam = '&temperature_unit=fahrenheit';
-
-        // 2. Set coordinates directly
-        const latitude = 40.6298;
-        const longitude = -91.3145;
-
-        // 3. Fetch weather data
-        const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true${tempUnitParam}`);
-        const weatherData = await weatherRes.json();
-
-        if (weatherData && weatherData.current_weather) {
-            const temp = Math.round(weatherData.current_weather.temperature);
-            const code = weatherData.current_weather.weathercode;
-            const info = WMO_WEATHER[code] || { icon: '🌡️', desc: 'Current Weather' };
-
-            weatherIconEl.textContent = info.icon;
-            weatherTempEl.textContent = `${temp}°F`;
-            weatherDescEl.textContent = info.desc;
+    async function fetchLocalWeather() {
+        if (!navigator.geolocation) {
+            weatherDescEl.textContent = 'Geolocation not supported by this browser.';
+            return;
         }
-    } catch (err) {
-        // If it fails, print the error directly on the widget so we can see it
-        console.error("Failed to load weather:", err);
-        weatherDescEl.textContent = 'Error: ' + err.message;
-    }
-}
+
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            const unit = getWeatherUnitPreference();
+            const tempUnitParam = unit === 'f' ? '&temperature_unit=fahrenheit' : '';
+
+            try {
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true${tempUnitParam}`);
+                const weatherData = await weatherRes.json();
+
+                if (weatherData && weatherData.current_weather) {
+                    const temp = Math.round(weatherData.current_weather.temperature);
+                    const code = weatherData.current_weather.weathercode;
+                    const info = WMO_WEATHER[code] || { icon: '🌡️', desc: 'Current conditions' };
+
+                    weatherIconEl.textContent = info.icon;
+                    weatherTempEl.textContent = `${temp}°${unit === 'f' ? 'F' : 'C'}`;
+                    weatherDescEl.textContent = info.desc;
+                } else {
+                    weatherDescEl.textContent = 'Weather unavailable right now.';
+                }
+            } catch (e) {
+                console.error('Error fetching weather:', e);
+                weatherDescEl.textContent = 'Could not load weather.';
+            }
 
             // Best-effort reverse geocoding for a friendly location label (no API key required)
             try {
