@@ -3392,14 +3392,16 @@
     }
 
    async function fetchLocalWeather() {
-    // Replace these numbers with your exact latitude and longitude
-    const latitude = 40.6298;
-    const longitude = -91.3145;
-
-    const unit = getWeatherUnitPreference();
-    const tempUnitParam = unit === 'f' ? '&temperature_unit=fahrenheit' : '';
-
     try {
+        // 1. Bypass localStorage completely to prevent security crashes
+        const unit = 'f'; 
+        const tempUnitParam = '&temperature_unit=fahrenheit';
+
+        // 2. Set coordinates directly
+        const latitude = 40.6298;
+        const longitude = -91.3145;
+
+        // 3. Fetch weather data
         const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true${tempUnitParam}`);
         const weatherData = await weatherRes.json();
 
@@ -3409,12 +3411,13 @@
             const info = WMO_WEATHER[code] || { icon: '🌡️', desc: 'Current Weather' };
 
             weatherIconEl.textContent = info.icon;
-            weatherTempEl.textContent = `${temp}°${unit === 'f' ? 'F' : 'C'}`;
+            weatherTempEl.textContent = `${temp}°F`;
             weatherDescEl.textContent = info.desc;
         }
     } catch (err) {
+        // If it fails, print the error directly on the widget so we can see it
         console.error("Failed to load weather:", err);
-        weatherDescEl.textContent = 'Unable to load weather';
+        weatherDescEl.textContent = 'Error: ' + err.message;
     }
 }
 
