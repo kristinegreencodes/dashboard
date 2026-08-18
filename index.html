@@ -251,14 +251,15 @@
     #fastingSettingsBtn:hover { transform: rotate(45deg); }
     #fasting-settings-panel { display: none; background-color: var(--bg-color); padding: 10px; border-radius: 12px; border: 2px dashed var(--card-border); margin-bottom: 10px; }
 
-    /* Notifications / Reminders / Weather */
-    #dstReminder, #holidayReminder, #yearEndCountdownContainer, #weeklyWeatherContainer { 
+    /* Notifications / Reminders / Weather / Moon Phase */
+    #dstReminder, #holidayReminder, #yearEndCountdownContainer, #moonPhaseContainer, #weeklyWeatherContainer { 
       background-color: var(--box-bg); border: 3px dashed var(--card-border); padding: 15px; border-radius: 16px; margin-bottom: 20px; text-align: center; font-weight: 600; 
     }
     #yearEndCountdownValue { color: var(--accent-hover); font-weight: bold; font-size: 1.1em; }
+    #moonPhaseContainer h3, #weeklyWeatherContainer h3 { margin-top: 0; font-size: 16px; border-bottom: 2px dashed var(--card-border); padding-bottom: 6px; margin-bottom: 10px; }
+    #moonPhaseDisplay { font-size: 15px; font-weight: bold; color: var(--accent-color); }
 
     /* Weekly Weather Styles */
-    #weeklyWeatherContainer h3 { margin-top: 0; font-size: 16px; border-bottom: 2px dashed var(--card-border); padding-bottom: 6px; margin-bottom: 10px; }
     .forecast-day { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; border-bottom: 1px dotted var(--card-border); }
     .forecast-day:last-child { border-bottom: none; }
     .forecast-day .day-name { width: 45px; text-align: left; font-weight: bold; }
@@ -375,6 +376,12 @@
     <div id="yearEndCountdownContainer">
       <h3>✨ Time until Year End</h3>
       <p id="yearEndCountdownValue">Calculating...</p>
+    </div>
+
+    <!-- Moon Phase Widget -->
+    <div id="moonPhaseContainer">
+      <h3>🌙 Moon Phase</h3>
+      <div id="moonPhaseDisplay">Calculating...</div>
     </div>
 
     <!-- 7-Day Weather Forecast -->
@@ -499,119 +506,137 @@
       </div>
     </div>
 
-    <div class="dashboard-section" id="cctvSection">
-      <div class="dashboard-section-header">
-        <h2 class="section-title">📷 CCTV Cameras</h2>
-        <button class="add-item-btn" id="addCameraBtn" type="button">+ Add Camera</button>
-      </div>
-      <div class="grid" id="cctvGrid"></div>
-    </div>
-
-    <div class="dashboard-section" id="countdownSection">
-      <div class="dashboard-section-header">
-        <h2 class="section-title">⏳ Countdowns</h2>
-        <button class="add-item-btn" id="addCountdownBtn" type="button">+ Add Countdown</button>
-      </div>
-      <div class="grid" id="countdownGrid"></div>
-    </div>
-
-    <!-- INCOME TRACKER -->
-    <div class="dashboard-section" id="incomeSection">
-      <div class="dashboard-section-header">
-        <h2 class="section-title">💰 Income Tracker</h2>
-        <button class="add-item-btn" id="setGoalBtn" type="button">⚙️ Set Goal</button>
-      </div>
-      
-      <div class="card" style="margin-bottom: 20px; padding: 25px;">
-        <div class="income-stats">
-           <div class="income-stat-box">
-               <div class="income-stat-label">Monthly Goal</div>
-               <div class="income-stat-value goal">$<span id="incomeGoalDisplay">0.00</span></div>
-           </div>
-           <div class="income-stat-box">
-               <div class="income-stat-label">Today's Income</div>
-               <div class="income-stat-value">$<span id="incomeTodayDisplay">0.00</span></div>
-           </div>
-           <div class="income-stat-box">
-               <div class="income-stat-label">Total This Month</div>
-               <div class="income-stat-value">$<span id="incomeTotalDisplay">0.00</span></div>
-           </div>
-           <div class="income-stat-box">
-               <div class="income-stat-label">Amount to Reach Goal</div>
-               <div class="income-stat-value">$<span id="incomeRemainingDisplay">0.00</span></div>
-           </div>
+    <!-- COLLAPSIBLE CCTV CAMERAS -->
+    <div class="collapsible-section dashboard-section" id="cctvCollapsibleSection">
+      <details open>
+        <summary>📷 CCTV Cameras</summary>
+        <div class="collapsible-content">
+          <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
+            <span style="font-size: 14px; color: var(--text-muted);">Manage your security camera feeds</span>
+            <button class="add-item-btn" id="addCameraBtn" type="button">+ Add Camera</button>
+          </div>
+          <div class="grid" id="cctvGrid"></div>
         </div>
-        
-        <form id="addIncomeForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-           <input type="number" id="incomeAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
-           <input type="text" id="incomeSource" placeholder="Source (e.g., Vinted, Depop)" required style="width: 220px; margin: 0;">
-           <input type="date" id="incomeDate" required style="width: 160px; margin: 0;">
-           <button type="submit" class="add-item-btn" style="margin: 0;">Add Income</button>
-        </form>
-      </div>
-
-      <div class="collapsible-section" style="margin-top: 0;">
-         <details>
-            <summary>📜 Income History</summary>
-            <div class="collapsible-content">
-               <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
-            </div>
-         </details>
-      </div>
-      
-      <div class="collapsible-section" style="margin-top: 10px;">
-         <details>
-            <summary>📊 Monthly Overview (Income)</summary>
-            <div class="collapsible-content">
-               <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
-            </div>
-         </details>
-      </div>
+      </details>
     </div>
 
-    <!-- EXPENSES TRACKER -->
-    <div class="dashboard-section" id="expenseSection">
-      <div class="dashboard-section-header">
-        <h2 class="section-title">💸 Expenses Tracker</h2>
-      </div>
-      
-      <div class="card" style="margin-bottom: 20px; padding: 25px;">
-        <div class="income-stats">
-           <div class="income-stat-box">
-               <div class="income-stat-label">Today's Expenses</div>
-               <div class="income-stat-value expense">$<span id="expenseTodayDisplay">0.00</span></div>
-           </div>
-           <div class="income-stat-box">
-               <div class="income-stat-label">Total Spent This Month</div>
-               <div class="income-stat-value expense">$<span id="expenseTotalDisplay">0.00</span></div>
-           </div>
+    <!-- COLLAPSIBLE COUNTDOWNS -->
+    <div class="collapsible-section dashboard-section" id="countdownCollapsibleSection">
+      <details open>
+        <summary>⏳ Countdowns</summary>
+        <div class="collapsible-content">
+          <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
+            <span style="font-size: 14px; color: var(--text-muted);">Track important upcoming dates</span>
+            <button class="add-item-btn" id="addCountdownBtn" type="button">+ Add Countdown</button>
+          </div>
+          <div class="grid" id="countdownGrid"></div>
         </div>
-        
-        <form id="addExpenseForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-           <input type="number" id="expenseAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
-           <input type="text" id="expenseFor" placeholder="What is it for? (e.g., Supplies)" required style="width: 220px; margin: 0;">
-           <input type="date" id="expenseDate" required style="width: 160px; margin: 0;">
-           <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Expense</button>
-        </form>
-      </div>
+      </details>
+    </div>
 
-      <div class="collapsible-section" style="margin-top: 0;">
-         <details>
-            <summary>📜 Expense History</summary>
-            <div class="collapsible-content">
-               <div id="expenseHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+    <!-- COLLAPSIBLE INCOME TRACKER -->
+    <div class="collapsible-section dashboard-section" id="incomeCollapsibleSection">
+      <details open>
+        <summary>💰 Income Tracker</summary>
+        <div class="collapsible-content">
+          <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
+            <span style="font-size: 14px; color: var(--text-muted);">Monitor your earnings and goals</span>
+            <button class="add-item-btn" id="setGoalBtn" type="button">⚙️ Set Goal</button>
+          </div>
+          
+          <div class="card" style="margin-bottom: 20px; padding: 25px;">
+            <div class="income-stats">
+               <div class="income-stat-box">
+                   <div class="income-stat-label">Monthly Goal</div>
+                   <div class="income-stat-value goal">$<span id="incomeGoalDisplay">0.00</span></div>
+               </div>
+               <div class="income-stat-box">
+                   <div class="income-stat-label">Today's Income</div>
+                   <div class="income-stat-value">$<span id="incomeTodayDisplay">0.00</span></div>
+               </div>
+               <div class="income-stat-box">
+                   <div class="income-stat-label">Total This Month</div>
+                   <div class="income-stat-value">$<span id="incomeTotalDisplay">0.00</span></div>
+               </div>
+               <div class="income-stat-box">
+                   <div class="income-stat-label">Amount to Reach Goal</div>
+                   <div class="income-stat-value">$<span id="incomeRemainingDisplay">0.00</span></div>
+               </div>
             </div>
-         </details>
-      </div>
-      
-      <div class="collapsible-section" style="margin-top: 10px;">
-         <details>
-            <summary>📊 Monthly Overview (Expenses)</summary>
-            <div class="collapsible-content">
-               <div id="monthlyExpenseOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+            
+            <form id="addIncomeForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+               <input type="number" id="incomeAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
+               <input type="text" id="incomeSource" placeholder="Source (e.g., Vinted, Depop)" required style="width: 220px; margin: 0;">
+               <input type="date" id="incomeDate" required style="width: 160px; margin: 0;">
+               <button type="submit" class="add-item-btn" style="margin: 0;">Add Income</button>
+            </form>
+          </div>
+
+          <div class="collapsible-section" style="margin-top: 0;">
+             <details>
+                <summary>📜 Income History</summary>
+                <div class="collapsible-content">
+                   <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+                </div>
+             </details>
+          </div>
+          
+          <div class="collapsible-section" style="margin-top: 10px;">
+             <details>
+                <summary>📊 Monthly Overview (Income)</summary>
+                <div class="collapsible-content">
+                   <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+             </details>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- COLLAPSIBLE EXPENSES TRACKER -->
+    <div class="collapsible-section dashboard-section" id="expenseCollapsibleSection">
+      <details open>
+        <summary>💸 Expenses Tracker</summary>
+        <div class="collapsible-content">
+          <div class="card" style="margin-bottom: 20px; padding: 25px;">
+            <div class="income-stats">
+               <div class="income-stat-box">
+                   <div class="income-stat-label">Today's Expenses</div>
+                   <div class="income-stat-value expense">$<span id="expenseTodayDisplay">0.00</span></div>
+               </div>
+               <div class="income-stat-box">
+                   <div class="income-stat-label">Total Spent This Month</div>
+                   <div class="income-stat-value expense">$<span id="expenseTotalDisplay">0.00</span></div>
+               </div>
             </div>
-         </details>
-      </div>
+            
+            <form id="addExpenseForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+               <input type="number" id="expenseAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
+               <input type="text" id="expenseFor" placeholder="What is it for? (e.g., Supplies)" required style="width: 220px; margin: 0;">
+               <input type="date" id="expenseDate" required style="width: 160px; margin: 0;">
+               <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Expense</button>
+            </form>
+          </div>
+
+          <div class="collapsible-section" style="margin-top: 0;">
+             <details>
+                <summary>📜 Expense History</summary>
+                <div class="collapsible-content">
+                   <div id="expenseHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+                </div>
+             </details>
+          </div>
+          
+          <div class="collapsible-section" style="margin-top: 10px;">
+             <details>
+                <summary>📊 Monthly Overview (Expenses)</summary>
+                <div class="collapsible-content">
+                   <div id="monthlyExpenseOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+                </div>
+             </details>
+          </div>
+        </div>
+      </details>
     </div>
 
   </div>
@@ -793,6 +818,7 @@
     const calendarTimezoneSelect = document.getElementById('calendarTimezoneSelect');
     
     const weeklyForecastList = document.getElementById('weeklyForecastList');
+    const moonPhaseDisplay = document.getElementById('moonPhaseDisplay');
     
     const todoInput = document.getElementById('todoInput');
     const todoList = document.getElementById('todoList');
@@ -1120,6 +1146,42 @@
 
       html += '</tr></tbody></table>';
       smallCal.innerHTML = html;
+    }
+
+    // Moon Phase Calculation
+    function updateMoonPhase() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth() + 1;
+      const day = now.getDate();
+
+      // Simple astronomical calculation for lunar phase
+      let c = 0, e = 0, jd = 0, b = 0;
+      if (month < 3) {
+        year -= 1;
+        month += 12;
+      }
+      ++month;
+      c = 365.25 * year;
+      e = 30.6 * month;
+      jd = c + e + day - 694039.0; // jd is total days elapsed
+      jd /= 29.53058867; // divide by lunar cycle
+      let phase = jd - Math.floor(jd); // get fraction of cycle
+      phase = phase * 8; // scale to 8 phases
+      let index = Math.round(phase) % 8;
+
+      const phases = [
+        { name: "New Moon", icon: "🌑" },
+        { name: "Waxing Crescent", icon: "🌒" },
+        { name: "First Quarter", icon: "🌓" },
+        { name: "Waxing Gibbous", icon: "🌔" },
+        { name: "Full Moon", icon: "🌕" },
+        { name: "Waning Gibbous", icon: "🌖" },
+        { name: "Last Quarter", icon: "🌗" },
+        { name: "Waning Crescent", icon: "🌘" }
+      ];
+
+      moonPhaseDisplay.innerHTML = `${phases[index].icon} ${phases[index].name}`;
     }
 
     // Weekly Weather API (7-Day Forecast)
@@ -1622,6 +1684,7 @@
       });
 
       renderSmallCalendar();
+      updateMoonPhase();
       updateHolidayReminder();
       updateYearEndCountdown();
       updateFastingTimers(now.getHours(), now.getMinutes(), now.getSeconds());
