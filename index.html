@@ -1151,23 +1151,22 @@
     // Moon Phase Calculation
     function updateMoonPhase() {
       const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth() + 1;
-      const day = now.getDate();
+      let y = now.getFullYear();
+      let m = now.getMonth() + 1;
+      const d = now.getDate();
 
-      // Simple astronomical calculation for lunar phase
-      let c = 0, e = 0, jd = 0, b = 0;
-      if (month < 3) {
-        year -= 1;
-        month += 12;
+      let c = 0, e = 0, jd = 0;
+      if (m < 3) {
+        y -= 1;
+        m += 12;
       }
-      ++month;
-      c = 365.25 * year;
-      e = 30.6 * month;
-      jd = c + e + day - 694039.0; // jd is total days elapsed
-      jd /= 29.53058867; // divide by lunar cycle
-      let phase = jd - Math.floor(jd); // get fraction of cycle
-      phase = phase * 8; // scale to 8 phases
+      ++m;
+      c = 365.25 * y;
+      e = 30.6 * m;
+      jd = c + e + d - 694039.0; 
+      jd /= 29.53058867; 
+      let phase = jd - Math.floor(jd); 
+      phase = phase * 8; 
       let index = Math.round(phase) % 8;
 
       const phases = [
@@ -1181,7 +1180,9 @@
         { name: "Waning Crescent", icon: "🌘" }
       ];
 
-      moonPhaseDisplay.innerHTML = `${phases[index].icon} ${phases[index].name}`;
+      if (moonPhaseDisplay) {
+        moonPhaseDisplay.innerHTML = `${phases[index].icon} ${phases[index].name}`;
+      }
     }
 
     // Weekly Weather API (7-Day Forecast)
@@ -1645,7 +1646,6 @@
         });
     }
 
-
     // Master Clock & Updates
     function updateCardVisibility() {
       toggles.forEach(t => {
@@ -1711,7 +1711,6 @@
       if (savedClientId) document.getElementById('gcalClientId').value = savedClientId;
       if (savedApiKey) document.getElementById('gcalApiKey').value = savedApiKey;
 
-      // Initialize Income & Expense Trackers
       loadIncomeData();
       renderIncome();
       loadExpenseData();
