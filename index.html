@@ -311,11 +311,12 @@
     .habit-title { font-weight: bold; font-size: 15px; color: var(--text-main); }
     .habit-meta { font-size: 11px; color: var(--text-muted); }
     
-    .habit-tracker-row { display: flex; align-items: center; gap: 12px; }
-    .habit-streak { font-size: 12px; font-weight: bold; background: var(--box-bg); padding: 4px 8px; border-radius: 8px; border: 1px dashed var(--card-border); color: var(--accent-color); }
-    .habit-dots { display: flex; gap: 6px; align-items: center; }
+    .habit-tracker-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .habit-streak { font-size: 11px; font-weight: bold; background: var(--box-bg); padding: 3px 6px; border-radius: 6px; border: 1px dashed var(--card-border); color: var(--accent-color); }
+    .habit-timer { font-family: monospace; font-size: 13px; font-weight: bold; background: var(--box-bg); padding: 3px 8px; border-radius: 6px; border: 1px dashed var(--card-border); }
+    .habit-dots { display: flex; gap: 5px; align-items: center; }
     .habit-dot-wrap { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: var(--text-muted); }
-    .habit-dot { width: 16px; height: 16px; border-radius: 50%; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+    .habit-dot { width: 14px; height: 14px; border-radius: 50%; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 8px; }
     .habit-dot.completed { background-color: var(--card-border); color: white; }
 
     .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -673,7 +674,7 @@
             </form>
           </div>
           <div id="habitsContainer">
-             <!-- Habits with compact streak/dot matrix render here -->
+             <!-- Habits with stopwatch and 12-hr sorted timeline render here -->
           </div>
         </div>
       </details>
@@ -974,6 +975,7 @@
     const habitDurationInput = document.getElementById('habitDuration');
     const habitsContainer = document.getElementById('habitsContainer');
     let habits = [];
+    let habitTimers = {}; // Stores running stopwatch intervals
     const HABITS_KEY = 'userHabitsList';
 
     // Eisenhower Matrix Variables
@@ -1754,7 +1756,9 @@
         });
     }
 
-    // --- Habit Tracker Logic ---
+    // --- Habit Tracker & Stopwatch Logic ---
+    let habitTimers = {}; // { habitId: { intervalId, seconds } }
+
     function loadHabitsData() {
         try {
             const saved = localStorage.getItem(HABITS_KEY);
@@ -1786,13 +1790,13 @@
             pastDays.push({ dateStr, label });
         }
 
-        // Sort habits chronologically by their scheduled time
+        // Sort habits chronologically by time of day (earliest first)
         const sortedHabits = [...habits].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
         habitsContainer.innerHTML = sortedHabits.map(habit => {
             if (!habit.logs) habit.logs = {};
             
-            // Calculate current streak
+            // Calculate streak
             let streak = 0;
             let checkDate = new Date(today);
             while (true) {
@@ -1804,7 +1808,6 @@
                     streak++;
                     checkDate.setDate(checkDate.getDate() - 1);
                 } else {
-                    // if today isn't checked yet, don't break streak from yesterday
                     if (dStr === pastDays[6].dateStr) {
                         checkDate.setDate(checkDate.getDate() - 1);
                         continue;
@@ -1828,18 +1831,24 @@
 
             const todayStr = pastDays[6].dateStr;
             const isTodayDone = habit.logs[todayStr] ? true : false;
-            
-            // Format time nicely
             const formattedTime = format12Hour(habit.time);
+            
+            // Current timer display seconds
+            const currentSecs = habitTimers[habit.id] ? habitTimers[habit.id].seconds : 0;
+            const timerMin = Math.floor(currentSecs / 60).toString().padStart(2, '0');
+            const timerSec = (currentSecs % 60).toString().padStart(2, '0');
+            const isRunning = habitTimers[habit.id] && habitTimers[habit.id].isRunning;
 
             return `
                 <div class="habit-card" data-id="${habit.id}">
                     <div class="habit-info">
                         <span class="habit-title">${escapeHtml(habit.name)}</span>
-                        <span class="habit-meta">⏰ ${formattedTime} • ⏱️ ${habit.duration}m</span>
+                        <span class="habit-meta">⏰ ${formattedTime} • ⏱️ Target: ${habit.duration}m</span>
                     </div>
                     <div class="habit-tracker-row">
-                        <span class="habit-streak">🔥 ${streak} day streak</span>
+                        <span class="habit-streak">🔥 ${streak}d</span>
+                        <div class="habit-timer" id="timer-${habit.id}">${timerMin}:${timerSec}</div>
+                        <button type="button" class="add-item-btn habit-timer-btn" data-id="${habit.id}" style="padding: 4px 10px; font-size: 12px; margin: 0;">${isRunning ? '⏸ Pause' : '▶ Start'}</button>
                         <div class="habit-dots">
                             ${dotsHtml}
                         </div>
@@ -1851,6 +1860,53 @@
                 </div>
             `;
         }).join('');
+    }
+
+    function toggleHabitTimer(habitId) {
+        if (!habitTimers[habitId]) {
+            habitTimers[habitId] = { isRunning: false, seconds: 0, interval: null };
+        }
+
+        const timerObj = habitTimers[habitId];
+        const habit = habits.find(h => h.id === habitId);
+        const targetSeconds = habit ? parseInt(habit.duration, 10) * 60 : 0;
+
+        if (timerObj.isRunning) {
+            // Pause
+            clearInterval(timerObj.interval);
+            timerObj.isRunning = false;
+        } else {
+            // Start
+            timerObj.isRunning = true;
+            timerObj.interval = setInterval(() => {
+                timerObj.seconds++;
+                
+                // Update timer display directly without re-rendering whole list
+                const timerEl = document.getElementById(`timer-${habitId}`);
+                if (timerEl) {
+                    const m = Math.floor(timerObj.seconds / 60).toString().padStart(2, '0');
+                    const s = (timerObj.seconds % 60).toString().padStart(2, '0');
+                    timerEl.textContent = `${m}:${s}`;
+                }
+
+                // Check if target duration is reached
+                if (targetSeconds > 0 && timerObj.seconds >= targetSeconds) {
+                    clearInterval(timerObj.interval);
+                    timerObj.isRunning = false;
+                    
+                    // Auto mark as done today!
+                    const today = new Date();
+                    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+                    if (habit) {
+                        habit.logs[dateStr] = true;
+                        saveHabitsData();
+                        renderHabits();
+                        alert(`🎉 Great job! You hit your allotted time for "${habit.name}" and it has been marked as done!`);
+                    }
+                }
+            }, 1000);
+        }
+        renderHabits();
     }
 
     if(addHabitForm) {
@@ -1873,6 +1929,26 @@
     }
 
     if(habitsContainer) {
+        habitsContainer.addEventListener('click', (e) => {
+            const timerBtn = e.target.closest('.habit-timer-btn');
+            if (timerBtn) {
+                toggleHabitTimer(timerBtn.dataset.id);
+                return;
+            }
+
+            const btn = e.target.closest('.delete-habit-btn');
+            if (btn) {
+                // Clear timer if running
+                if (habitTimers[btn.dataset.id]) {
+                    clearInterval(habitTimers[btn.dataset.id].interval);
+                    delete habitTimers[btn.dataset.id];
+                }
+                habits = habits.filter(h => h.id !== btn.dataset.id);
+                saveHabitsData();
+                renderHabits();
+            }
+        });
+
         habitsContainer.addEventListener('change', (e) => {
             const chk = e.target.closest('.habit-check');
             if (chk) {
@@ -1885,15 +1961,6 @@
                     saveHabitsData();
                     renderHabits();
                 }
-            }
-        });
-
-        habitsContainer.addEventListener('click', (e) => {
-            const btn = e.target.closest('.delete-habit-btn');
-            if (btn) {
-                habits = habits.filter(h => h.id !== btn.dataset.id);
-                saveHabitsData();
-                renderHabits();
             }
         });
     }
