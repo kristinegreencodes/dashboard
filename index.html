@@ -1035,6 +1035,15 @@
     function generateId() { return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
     function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
 
+    // Helper: Convert 24-hour "HH:mm" to 12-hour "h:mm AM/PM"
+    function format12Hour(timeStr) {
+        if (!timeStr) return '';
+        const [h24, min] = timeStr.split(':');
+        let h12 = parseInt(h24, 10) % 12 || 12;
+        const ampm = parseInt(h24, 10) >= 12 ? 'PM' : 'AM';
+        return `${h12}:${min} ${ampm}`;
+    }
+
     // Settings Management
     function saveSettings() {
       const settings = { toggles: {}, customTimezones: {} };
@@ -1777,7 +1786,10 @@
             pastDays.push({ dateStr, label });
         }
 
-        habitsContainer.innerHTML = habits.map(habit => {
+        // Sort habits chronologically by their scheduled time
+        const sortedHabits = [...habits].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+
+        habitsContainer.innerHTML = sortedHabits.map(habit => {
             if (!habit.logs) habit.logs = {};
             
             // Calculate current streak
@@ -1816,12 +1828,15 @@
 
             const todayStr = pastDays[6].dateStr;
             const isTodayDone = habit.logs[todayStr] ? true : false;
+            
+            // Format time nicely
+            const formattedTime = format12Hour(habit.time);
 
             return `
                 <div class="habit-card" data-id="${habit.id}">
                     <div class="habit-info">
                         <span class="habit-title">${escapeHtml(habit.name)}</span>
-                        <span class="habit-meta">⏰ ${habit.time} • ⏱️ ${habit.duration}m</span>
+                        <span class="habit-meta">⏰ ${formattedTime} • ⏱️ ${habit.duration}m</span>
                     </div>
                     <div class="habit-tracker-row">
                         <span class="habit-streak">🔥 ${streak} day streak</span>
