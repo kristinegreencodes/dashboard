@@ -188,8 +188,42 @@
     #smallCalendar { padding: 15px; margin-top: 10px; font-size: 14px; font-weight: 600; }
     #smallCalendar caption { font-weight: bold; font-size: 16px; margin-bottom: 10px; }
     #smallCalendar table { width: 100%; border-collapse: collapse; }
-    #smallCalendar th, #smallCalendar td { width: 14.28%; text-align: center; padding: 6px 0; }
+    #smallCalendar th, #smallCalendar td { width: 14.28%; text-align: center; padding: 6px 0; position: relative; }
     #smallCalendar .today { background-color: var(--accent-color); color: white; border-radius: 50%; font-weight: bold; }
+    #smallCalendar .has-event::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      background-color: var(--text-main);
+      border-radius: 50%;
+    }
+    #smallCalendar .today.has-event::after { background-color: white; }
+
+    /* Google Calendar Events List */
+    #gcalEventsBox {
+      background-color: var(--box-bg);
+      border: 2px dashed var(--card-border);
+      border-radius: 12px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+      max-height: 180px;
+      overflow-y: auto;
+    }
+    .gcal-event-item {
+      padding: 6px 0;
+      border-bottom: 1px dotted var(--card-border);
+      display: flex;
+      flex-direction: column;
+      text-align: left;
+    }
+    .gcal-event-item:last-child { border-bottom: none; }
+    .gcal-event-title { font-weight: bold; color: var(--text-main); }
+    .gcal-event-time { font-size: 11px; color: var(--text-muted); }
 
     /* To-Do List */
     #todoList { list-style: none; padding: 0; margin: 0; }
@@ -315,10 +349,18 @@
 
     <div id="dstReminder"></div>
 
+    <!-- Calendar with Google Integration -->
     <div id="smallCalendarContainer">
       <div class="custom-tz-label" style="font-weight:bold; margin-bottom:5px;">📅 Calendar:</div>
       <select id="calendarTimezoneSelect" aria-label="Calendar timezone selector"></select>
       <div id="smallCalendar" aria-label="Small monthly calendar"></div>
+
+      <!-- Google Calendar Sync Button & List -->
+      <button id="gcalAuthBtn" class="add-item-btn" style="width: 100%; margin-top: 10px; padding: 8px 12px; font-size: 13px;">🔗 Connect Google Calendar</button>
+      <div id="gcalEventsBox" style="display: none;">
+        <div style="font-weight: bold; margin-bottom: 5px;">Activities & Events this Month:</div>
+        <div id="gcalEventsList">Loading events...</div>
+      </div>
     </div>
 
     <div id="holidayReminder" style="display: none;">
@@ -341,6 +383,20 @@
         <details>
             <summary>⚙️ Settings</summary>
             <div class="collapsible-content">
+                <!-- Google Calendar API Settings -->
+                <details>
+                    <summary>🔑 Google Calendar Keys</summary>
+                    <div class="collapsible-content">
+                        <label style="font-size:12px; font-weight:bold;">Client ID:
+                          <input type="text" id="gcalClientId" placeholder="xxxx.apps.googleusercontent.com" style="margin-bottom:8px;" />
+                        </label>
+                        <label style="font-size:12px; font-weight:bold;">API Key:
+                          <input type="text" id="gcalApiKey" placeholder="AIzaSy..." style="margin-bottom:8px;" />
+                        </label>
+                        <button id="saveGcalKeysBtn" class="add-item-btn" style="width:100%; padding:6px; font-size:12px;">Save Keys</button>
+                    </div>
+                </details>
+
                 <details>
                     <summary>🖼️ Background Settings</summary>
                     <div class="collapsible-content">
@@ -591,6 +647,8 @@
     </div>
   </div>
 
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
   <script>
     // Elements & Global Variables
@@ -629,7 +687,11 @@
     let cameras = [];
     let countdowns = [];
 
-    // Timezone Data
+    // Google Calendar State
+    let gcalTokenClient = null;
+    let gcalAccessToken = null;
+    let gcalEvents = [];
+
     const timezoneMap = {
       pst: { tz: 'America/Los_Angeles', name: 'PST (Los Angeles)' },
       mst: { tz: 'America/Denver', name: 'MST (Denver)' },
@@ -662,10 +724,9 @@
     const CALENDAR_TZ_KEY = 'calendarTimezonePreference';
     const TODO_KEY = 'userTodoList';
     const NOTEPAD_KEY = 'userNotepadContent';
-    const CCTV_KEY = 'userCctvCameras';
-    const COUNTDOWN_KEY = 'userCountdowns';
+    const GCAL_CLIENT_KEY = 'userGcalClientId';
+    const GCAL_API_KEY = 'userGcalApiKey';
 
-    // Core Utilities
     function formatDateWithDay(date, timeZone) {
       const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', timeZone };
       return date.toLocaleDateString('en-US', options);
@@ -700,6 +761,94 @@
       const savedBackground = localStorage.getItem(BACKGROUND_KEY);
       if (savedBackground) { document.body.style.backgroundImage = `url(${savedBackground})`; document.body.classList.add('has-wallpaper'); }
     }
+
+    // Google Calendar API Integration
+    function initGoogleAuth() {
+      const clientId = localStorage.getItem(GCAL_CLIENT_KEY);
+      if (!clientId || !window.google) return;
+      
+      try {
+        gcalTokenClient = google.accounts.oauth2.initTokenClient({
+          client_id: clientId,
+          scope: 'https://www.googleapis.com/auth/calendar.readonly',
+          callback: async (tokenResponse) => {
+            if (tokenResponse.error !== undefined) {
+              throw (tokenResponse);
+            }
+            gcalAccessToken = tokenResponse.access_token;
+            document.getElementById('gcalAuthBtn').innerText = "🔄 Refresh Events";
+            document.getElementById('gcalEventsBox').style.display = "block";
+            await fetchGoogleCalendarEvents();
+          },
+        });
+      } catch (e) {
+        console.error("GCal Init Error:", e);
+      }
+    }
+
+    async function fetchGoogleCalendarEvents() {
+      const apiKey = localStorage.getItem(GCAL_API_KEY);
+      if (!gcalAccessToken) return;
+
+      const now = new Date();
+      const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+      try {
+        const url = `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(firstDay)}&timeMax=${encodeURIComponent(lastDay)}&singleEvents=true&orderBy=startTime${apiKey ? '&key=' + apiKey : ''}`;
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${gcalAccessToken}` }
+        });
+        const data = await response.json();
+        gcalEvents = data.items || [];
+        renderGoogleEvents();
+        renderSmallCalendar();
+      } catch (err) {
+        document.getElementById('gcalEventsList').innerHTML = `<div style="color:red;">Error loading events. Check API Key.</div>`;
+      }
+    }
+
+    function renderGoogleEvents() {
+      const listEl = document.getElementById('gcalEventsList');
+      if (gcalEvents.length === 0) {
+        listEl.innerHTML = `<div>No events found for this month.</div>`;
+        return;
+      }
+      let html = '';
+      gcalEvents.forEach(evt => {
+        const start = evt.start.dateTime ? new Date(evt.start.dateTime) : new Date(evt.start.date + 'T00:00:00');
+        const formattedDate = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        const formattedTime = evt.start.dateTime ? start.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) : 'All Day';
+        html += `
+          <div class="gcal-event-item">
+            <span class="gcal-event-title">${escapeHtml(evt.summary || 'Untitled Event')}</span>
+            <span class="gcal-event-time">🗓️ ${formattedDate} • ${formattedTime}</span>
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+    }
+
+    document.getElementById('saveGcalKeysBtn').addEventListener('click', () => {
+      const clientId = document.getElementById('gcalClientId').value.trim();
+      const apiKey = document.getElementById('gcalApiKey').value.trim();
+      localStorage.setItem(GCAL_CLIENT_KEY, clientId);
+      localStorage.setItem(GCAL_API_KEY, apiKey);
+      alert('Google Calendar Keys Saved! Now click "Connect Google Calendar".');
+      initGoogleAuth();
+    });
+
+    document.getElementById('gcalAuthBtn').addEventListener('click', () => {
+      const clientId = localStorage.getItem(GCAL_CLIENT_KEY);
+      if (!clientId) {
+        alert('Please enter your Google Client ID under Settings > Google Calendar Keys first!');
+        return;
+      }
+      if (!gcalTokenClient) initGoogleAuth();
+      if (gcalTokenClient) {
+        gcalTokenClient.requestAccessToken({ prompt: 'consent' });
+      }
+    });
 
     // To-Do Logic
     function renderTodoList() {
@@ -772,6 +921,15 @@
       const totalDaysInMonth = lastDayOfMonthInTZ.getDate(); 
       const monthName = dateInSelectedTZ.toLocaleString('en-US', { month: 'long', timeZone: selectedCalendarTZ });
 
+      // Gather event days for highlights
+      const eventDays = new Set();
+      gcalEvents.forEach(evt => {
+        const start = evt.start.dateTime ? new Date(evt.start.dateTime) : new Date(evt.start.date + 'T00:00:00');
+        if (start.getMonth() === month && start.getFullYear() === year) {
+          eventDays.add(start.getDate());
+        }
+      });
+
       let html = `<table aria-label="Calendar for ${monthName} ${year} in ${selectedCalendarTZ}"><caption>${monthName} ${year}</caption><thead><tr>`;
       ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => html += `<th scope="col">${d}</th>`);
       html += '</tr></thead><tbody><tr>';
@@ -780,7 +938,8 @@
       for (let dayNum = 1; dayNum <= totalDaysInMonth; dayNum++) {
         if ((startDayOfWeek + dayNum - 1) % 7 === 0 && dayNum !== 1) html += '</tr><tr>';
         const isToday = (dayNum === currentDayInTZ) ? 'today' : '';
-        html += `<td class="${isToday}">${dayNum}</td>`;
+        const hasEvent = eventDays.has(dayNum) ? 'has-event' : '';
+        html += `<td class="${isToday} ${hasEvent}">${dayNum}</td>`;
       }
       const remainingCells = (7 - ((startDayOfWeek + totalDaysInMonth) % 7)) % 7;
       for (let i = 0; i < remainingCells; i++) html += '<td></td>';
@@ -948,7 +1107,7 @@
         }
     }
 
-    // --- Master Clock Function ---
+    // Master Clock & Updates
     function updateCardVisibility() {
       toggles.forEach(t => {
         const card = document.getElementById(t.dataset.id + 'Card');
@@ -1009,6 +1168,12 @@
       
       const sn = localStorage.getItem(NOTEPAD_KEY);
       if(sn) notepad.value = sn;
+
+      // Fill in saved GCal keys in settings
+      const savedClientId = localStorage.getItem(GCAL_CLIENT_KEY);
+      const savedApiKey = localStorage.getItem(GCAL_API_KEY);
+      if (savedClientId) document.getElementById('gcalClientId').value = savedClientId;
+      if (savedApiKey) document.getElementById('gcalApiKey').value = savedApiKey;
 
       updateCardVisibility();
       fetchWeeklyWeather();
