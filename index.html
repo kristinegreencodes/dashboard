@@ -240,7 +240,7 @@
     .collapsible-section summary::before { content: '🌱 '; display: inline-block; margin-right: 5px; }
     .collapsible-section details[open] summary::before { content: '🌿 '; }
 
-    /* Fasting Tracker inside Sidebar */
+    /* Fasting Tracker & Pomodoro Timer inside Sidebar */
     .fasting-timer-box {
       background-color: #fff; border-radius: 12px; padding: 10px; margin: 10px 0; border: 2px dashed var(--card-border); opacity: 0.5; transition: all 0.3s ease; text-align: center;
     }
@@ -645,6 +645,26 @@
             </div>
         </details>
     </div>
+
+    <!-- Pomodoro Timer -->
+    <div id="pomodoroCollapsible" class="collapsible-section">
+        <details open> <summary>🍅 Pomodoro Timer</summary>
+            <div class="collapsible-content" style="position: relative; text-align: center;">
+                <div id="pomodoro-status" style="font-weight: bold; margin-bottom: 10px;">Ready to Focus!</div>
+                <div id="pomodoro-time" style="font-size: 36px; font-weight: bold; margin-bottom: 15px; color: var(--accent-color); font-family: monospace;">25:00</div>
+                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <button id="pomodoroStartBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px;">▶ Start</button>
+                    <button id="pomodoroPauseBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px; display: none;">⏸ Pause</button>
+                    <button id="pomodoroRestartBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px; display: none;">🔄 Restart</button>
+                    <button id="pomodoroStopBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px; background-color: var(--card-border); display: none;">⏹ Stop</button>
+                </div>
+                <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted);">
+                    <span id="pomodoro-mode-text">Current Mode: Focus (25m)</span>
+                </div>
+            </div>
+        </details>
+    </div>
+
   </div>
 
   <!-- Google Identity Services -->
@@ -1106,6 +1126,92 @@
             eatTimeDisplay.innerText = formatFastingTime(eatDuration, 0, 0); 
         }
     }
+
+    // --- Pomodoro Timer Logic ---
+    let pomodoroTimer = null;
+    let pomodoroTimeLeft = 25 * 60;
+    let isPomodoroRunning = false;
+    let isPomodoroBreak = false;
+
+    const pomodoroTimeDisplay = document.getElementById('pomodoro-time');
+    const pomodoroStatus = document.getElementById('pomodoro-status');
+    const pomodoroModeText = document.getElementById('pomodoro-mode-text');
+    const btnStart = document.getElementById('pomodoroStartBtn');
+    const btnPause = document.getElementById('pomodoroPauseBtn');
+    const btnRestart = document.getElementById('pomodoroRestartBtn');
+    const btnStop = document.getElementById('pomodoroStopBtn');
+
+    function formatPomodoroTime(seconds) {
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+    }
+
+    function updatePomodoroDisplay() {
+        if(pomodoroTimeDisplay) pomodoroTimeDisplay.innerText = formatPomodoroTime(pomodoroTimeLeft);
+    }
+
+    function startPomodoro() {
+        if (isPomodoroRunning) return;
+        isPomodoroRunning = true;
+        btnStart.style.display = 'none';
+        btnPause.style.display = 'inline-block';
+        btnRestart.style.display = 'inline-block';
+        btnStop.style.display = 'inline-block';
+        pomodoroStatus.innerText = isPomodoroBreak ? "Break Time! 🍵" : "Focusing... 🍅";
+
+        pomodoroTimer = setInterval(() => {
+            if (pomodoroTimeLeft > 0) {
+                pomodoroTimeLeft--;
+                updatePomodoroDisplay();
+            } else {
+                // switch modes
+                isPomodoroBreak = !isPomodoroBreak;
+                pomodoroTimeLeft = isPomodoroBreak ? 5 * 60 : 25 * 60;
+                pomodoroModeText.innerText = isPomodoroBreak ? "Current Mode: Break (5m)" : "Current Mode: Focus (25m)";
+                pomodoroStatus.innerText = isPomodoroBreak ? "Break Time! 🍵" : "Focusing... 🍅";
+                updatePomodoroDisplay();
+                alert(isPomodoroBreak ? "Focus time is up! Take a 5 minute break." : "Break is over! Back to focus.");
+            }
+        }, 1000);
+    }
+
+    function pausePomodoro() {
+        isPomodoroRunning = false;
+        clearInterval(pomodoroTimer);
+        btnPause.style.display = 'none';
+        btnStart.style.display = 'inline-block';
+        btnStart.innerText = "▶ Resume";
+        pomodoroStatus.innerText = "Paused ⏸️";
+    }
+
+    function stopPomodoro() {
+        isPomodoroRunning = false;
+        clearInterval(pomodoroTimer);
+        isPomodoroBreak = false;
+        pomodoroTimeLeft = 25 * 60;
+        updatePomodoroDisplay();
+        btnStart.style.display = 'inline-block';
+        btnStart.innerText = "▶ Start";
+        btnPause.style.display = 'none';
+        btnRestart.style.display = 'none';
+        btnStop.style.display = 'none';
+        pomodoroStatus.innerText = "Ready to Focus!";
+        pomodoroModeText.innerText = "Current Mode: Focus (25m)";
+    }
+
+    function restartPomodoro() {
+        isPomodoroRunning = false;
+        clearInterval(pomodoroTimer);
+        pomodoroTimeLeft = isPomodoroBreak ? 5 * 60 : 25 * 60;
+        updatePomodoroDisplay();
+        startPomodoro();
+    }
+
+    btnStart?.addEventListener('click', startPomodoro);
+    btnPause?.addEventListener('click', pausePomodoro);
+    btnStop?.addEventListener('click', stopPomodoro);
+    btnRestart?.addEventListener('click', restartPomodoro);
 
     // Master Clock & Updates
     function updateCardVisibility() {
