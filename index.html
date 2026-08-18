@@ -259,14 +259,7 @@
 
     /* Weekly Weather Styles */
     #weeklyWeatherContainer h3 { margin-top: 0; font-size: 16px; border-bottom: 2px dashed var(--card-border); padding-bottom: 6px; margin-bottom: 10px; }
-    .forecast-day {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 5px 0;
-      font-size: 13px;
-      border-bottom: 1px dotted var(--card-border);
-    }
+    .forecast-day { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; border-bottom: 1px dotted var(--card-border); }
     .forecast-day:last-child { border-bottom: none; }
     .forecast-day .day-name { width: 45px; text-align: left; font-weight: bold; }
     .forecast-day .day-icon { font-size: 18px; }
@@ -299,6 +292,16 @@
     .countdown-card { padding: 25px; text-align: center; }
     .countdown-days { font-size: 36px; color: var(--accent-color); font-weight: bold; margin: 10px 0; }
     .countdown-days.today { color: #e74c3c; }
+
+    /* Income Tracker Styles */
+    .income-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
+    .income-stat-box { background-color: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 15px; text-align: center; }
+    .income-stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+    .income-stat-value { font-size: 24px; font-weight: bold; color: var(--text-main); }
+    .income-stat-value.goal { color: var(--accent-color); }
+    
+    .income-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px dotted var(--card-border); }
+    .income-history-item:last-child { border-bottom: none; }
 
     .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--card-border); }
     .icon-btn:hover { color: #e74c3c; }
@@ -510,6 +513,66 @@
       </div>
       <div class="grid" id="countdownGrid"></div>
     </div>
+
+    <!-- INCOME TRACKER -->
+    <div class="dashboard-section" id="incomeSection">
+      <div class="dashboard-section-header">
+        <h2 class="section-title">💰 Income Tracker</h2>
+        <button class="add-item-btn" id="setGoalBtn" type="button">⚙️ Set Goal</button>
+      </div>
+      
+      <div class="card" style="margin-bottom: 20px; padding: 25px;">
+        <div class="income-stats">
+           <div class="income-stat-box">
+               <div class="income-stat-label">Monthly Goal</div>
+               <div class="income-stat-value goal">$<span id="incomeGoalDisplay">0.00</span></div>
+           </div>
+           <div class="income-stat-box">
+               <div class="income-stat-label">Today's Income</div>
+               <div class="income-stat-value">$<span id="incomeTodayDisplay">0.00</span></div>
+           </div>
+           <div class="income-stat-box">
+               <div class="income-stat-label">Total This Month</div>
+               <div class="income-stat-value">$<span id="incomeTotalDisplay">0.00</span></div>
+           </div>
+           <div class="income-stat-box">
+               <div class="income-stat-label">Amount to Reach Goal</div>
+               <div class="income-stat-value">$<span id="incomeRemainingDisplay">0.00</span></div>
+           </div>
+        </div>
+        
+        <form id="addIncomeForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+           <input type="number" id="incomeAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
+           <input type="text" id="incomeSource" placeholder="Source (e.g., Vinted, Depop)" required style="width: 220px; margin: 0;">
+           <input type="date" id="incomeDate" required style="width: 160px; margin: 0;">
+           <button type="submit" class="add-item-btn" style="margin: 0;">Add Income</button>
+        </form>
+      </div>
+
+      <div class="collapsible-section" style="margin-top: 0;">
+         <details>
+            <summary>📜 Income History</summary>
+            <div class="collapsible-content">
+               <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;">
+                  <!-- History items go here -->
+               </div>
+            </div>
+         </details>
+      </div>
+      
+      <!-- NEW: Monthly Overview -->
+      <div class="collapsible-section" style="margin-top: 10px;">
+         <details>
+            <summary>📊 Monthly Overview</summary>
+            <div class="collapsible-content">
+               <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;">
+                  <!-- Monthly totals go here -->
+               </div>
+            </div>
+         </details>
+      </div>
+
+    </div>
   </div>
 
   <dialog class="dashboard-dialog" id="cameraDialog">
@@ -556,6 +619,18 @@
       <div class="dialog-actions">
         <button type="button" class="cancel-btn" id="cancelCountdownBtn">Cancel</button>
         <button type="submit">Save Countdown</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Income Goal Dialog -->
+  <dialog class="dashboard-dialog" id="incomeGoalDialog">
+    <form id="incomeGoalForm">
+      <h3>Set Monthly Income Goal</h3>
+      <label>Goal Amount ($)* <input type="number" id="goalAmountInput" step="0.01" required /></label>
+      <div class="dialog-actions">
+        <button type="button" class="cancel-btn" id="cancelGoalBtn">Cancel</button>
+        <button type="submit">Save Goal</button>
       </div>
     </form>
   </dialog>
@@ -706,6 +781,30 @@
     const countdownGrid = document.getElementById('countdownGrid');
     let cameras = [];
     let countdowns = [];
+
+    // Income Tracker Variables
+    const incomeGoalDialog = document.getElementById('incomeGoalDialog');
+    const incomeGoalForm = document.getElementById('incomeGoalForm');
+    const setGoalBtn = document.getElementById('setGoalBtn');
+    const cancelGoalBtn = document.getElementById('cancelGoalBtn');
+    const goalAmountInput = document.getElementById('goalAmountInput');
+    
+    const addIncomeForm = document.getElementById('addIncomeForm');
+    const incomeAmountInput = document.getElementById('incomeAmount');
+    const incomeSourceInput = document.getElementById('incomeSource');
+    const incomeDateInput = document.getElementById('incomeDate');
+    
+    const incomeGoalDisplay = document.getElementById('incomeGoalDisplay');
+    const incomeTodayDisplay = document.getElementById('incomeTodayDisplay');
+    const incomeTotalDisplay = document.getElementById('incomeTotalDisplay');
+    const incomeRemainingDisplay = document.getElementById('incomeRemainingDisplay');
+    const incomeHistoryList = document.getElementById('incomeHistoryList');
+    const monthlyOverviewList = document.getElementById('monthlyOverviewList'); // NEW
+
+    let incomeGoal = 0;
+    let incomeEntries = [];
+    const INCOME_GOAL_KEY = 'userIncomeGoal';
+    const INCOME_ENTRIES_KEY = 'userIncomeEntries';
 
     // Google Calendar State
     let gcalTokenClient = null;
@@ -1165,7 +1264,6 @@
                 pomodoroTimeLeft--;
                 updatePomodoroDisplay();
             } else {
-                // switch modes
                 isPomodoroBreak = !isPomodoroBreak;
                 pomodoroTimeLeft = isPomodoroBreak ? 5 * 60 : 25 * 60;
                 pomodoroModeText.innerText = isPomodoroBreak ? "Current Mode: Break (5m)" : "Current Mode: Focus (25m)";
@@ -1212,6 +1310,134 @@
     btnPause?.addEventListener('click', pausePomodoro);
     btnStop?.addEventListener('click', stopPomodoro);
     btnRestart?.addEventListener('click', restartPomodoro);
+
+    // --- Income Tracker Logic ---
+    function loadIncomeData() {
+        incomeGoal = parseFloat(localStorage.getItem(INCOME_GOAL_KEY)) || 0;
+        try {
+            const saved = localStorage.getItem(INCOME_ENTRIES_KEY);
+            if (saved) incomeEntries = JSON.parse(saved);
+        } catch (e) { incomeEntries = []; }
+    }
+
+    function saveIncomeData() {
+        localStorage.setItem(INCOME_GOAL_KEY, incomeGoal);
+        localStorage.setItem(INCOME_ENTRIES_KEY, JSON.stringify(incomeEntries));
+    }
+
+    function renderIncome() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+
+        let todayTotal = 0;
+        let monthTotal = 0;
+        const monthlyTotals = {}; // Object to hold totals for Monthly Overview
+
+        incomeEntries.forEach(entry => {
+            const entryDate = new Date(entry.date + 'T12:00:00'); // Force local noon to avoid timezone shift
+            
+            // Calculate Today and Current Month totals
+            if (entry.date === todayStr) todayTotal += parseFloat(entry.amount);
+            if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
+                monthTotal += parseFloat(entry.amount);
+            }
+
+            // Calculate historical monthly totals
+            const monthYearStr = entryDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            if (!monthlyTotals[monthYearStr]) monthlyTotals[monthYearStr] = 0;
+            monthlyTotals[monthYearStr] += parseFloat(entry.amount);
+        });
+
+        // Render Top Stats
+        incomeGoalDisplay.textContent = incomeGoal.toFixed(2);
+        incomeTodayDisplay.textContent = todayTotal.toFixed(2);
+        incomeTotalDisplay.textContent = monthTotal.toFixed(2);
+        
+        const remaining = Math.max(0, incomeGoal - monthTotal);
+        incomeRemainingDisplay.textContent = remaining.toFixed(2);
+
+        // Render Individual Income History
+        const sortedEntries = [...incomeEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (sortedEntries.length === 0) {
+            incomeHistoryList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No income recorded yet.</div>';
+        } else {
+            incomeHistoryList.innerHTML = sortedEntries.map(entry => `
+                <div class="income-history-item">
+                    <div style="display:flex; flex-direction:column;">
+                        <strong>${escapeHtml(entry.source)}</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">${entry.date}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <strong style="color: var(--text-main);">+$${parseFloat(entry.amount).toFixed(2)}</strong>
+                        <button type="button" class="icon-btn delete-income-btn" data-id="${entry.id}">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render Monthly Overview
+        if (Object.keys(monthlyTotals).length === 0) {
+            monthlyOverviewList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No income recorded yet.</div>';
+        } else {
+            const sortedMonths = Object.keys(monthlyTotals).sort((a, b) => new Date(b) - new Date(a));
+            monthlyOverviewList.innerHTML = sortedMonths.map(month => `
+                <div class="income-history-item">
+                    <strong>${month}</strong>
+                    <strong style="color: var(--accent-color);">$${monthlyTotals[month].toFixed(2)}</strong>
+                </div>
+            `).join('');
+        }
+    }
+
+    if(setGoalBtn) {
+        setGoalBtn.addEventListener('click', () => {
+            goalAmountInput.value = incomeGoal;
+            incomeGoalDialog.showModal();
+        });
+        cancelGoalBtn.addEventListener('click', () => incomeGoalDialog.close());
+        incomeGoalForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            incomeGoal = parseFloat(goalAmountInput.value) || 0;
+            saveIncomeData();
+            renderIncome();
+            incomeGoalDialog.close();
+        });
+    }
+
+    if(addIncomeForm) {
+        addIncomeForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newEntry = {
+                id: generateId(),
+                amount: incomeAmountInput.value,
+                source: incomeSourceInput.value.trim(),
+                date: incomeDateInput.value
+            };
+            incomeEntries.push(newEntry);
+            saveIncomeData();
+            renderIncome();
+            
+            incomeAmountInput.value = '';
+            incomeSourceInput.value = '';
+        });
+    }
+
+    if(incomeHistoryList) {
+        incomeHistoryList.addEventListener('click', (e) => {
+            const btn = e.target.closest('.delete-income-btn');
+            if (btn) {
+                incomeEntries = incomeEntries.filter(entry => entry.id !== btn.dataset.id);
+                saveIncomeData();
+                renderIncome();
+            }
+        });
+    }
+
 
     // Master Clock & Updates
     function updateCardVisibility() {
@@ -1280,6 +1506,12 @@
       const savedApiKey = localStorage.getItem(GCAL_API_KEY);
       if (savedClientId) document.getElementById('gcalClientId').value = savedClientId;
       if (savedApiKey) document.getElementById('gcalApiKey').value = savedApiKey;
+
+      // Initialize Income Tracker
+      loadIncomeData();
+      renderIncome();
+      const d = new Date();
+      if(incomeDateInput) incomeDateInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
       updateCardVisibility();
       fetchWeeklyWeather();
