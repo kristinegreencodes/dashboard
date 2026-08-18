@@ -954,6 +954,19 @@
     let cameras = [];
     let countdowns = [];
 
+    // Dialog & Button Elements for CCTV and Countdowns
+    const addCameraBtn = document.getElementById('addCameraBtn');
+    const cameraDialog = document.getElementById('cameraDialog');
+    const cancelCameraBtn = document.getElementById('cancelCameraBtn');
+    const cameraForm = document.getElementById('cameraForm');
+
+    const addCountdownBtn = document.getElementById('addCountdownBtn');
+    const countdownDialog = document.getElementById('countdownDialog');
+    const cancelCountdownBtn = document.getElementById('cancelCountdownBtn');
+    const countdownForm = document.getElementById('countdownForm');
+    const cdRepeatToggle = document.getElementById('cdRepeatToggle');
+    const cdRepeatFreqWrapper = document.getElementById('cdRepeatFreqWrapper');
+
     // Income Tracker Variables
     const incomeGoalDialog = document.getElementById('incomeGoalDialog');
     const incomeGoalForm = document.getElementById('incomeGoalForm');
@@ -1053,6 +1066,8 @@
     const NOTEPAD_KEY = 'userNotepadContent';
     const GCAL_CLIENT_KEY = 'userGcalClientId';
     const GCAL_API_KEY = 'userGcalApiKey';
+    const CAMERAS_KEY = 'userCctvCameras';
+    const COUNTDOWNS_KEY = 'userCountdownsList';
 
     function formatDateWithDay(date, timeZone) {
       const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', timeZone };
@@ -1105,6 +1120,79 @@
     function loadBackground() {
       const savedBackground = localStorage.getItem(BACKGROUND_KEY);
       if (savedBackground) { document.body.style.backgroundImage = `url(${savedBackground})`; document.body.classList.add('has-wallpaper'); }
+    }
+
+    // CCTV & Countdowns Logic
+    function loadCameras() {
+        try {
+            const saved = localStorage.getItem(CAMERAS_KEY);
+            if (saved) cameras = JSON.parse(saved);
+        } catch(e) { cameras = []; }
+        renderCameras();
+    }
+    function saveCameras() { localStorage.setItem(CAMERAS_KEY, JSON.stringify(cameras)); }
+    function renderCameras() {
+        if (!cctvGrid) return;
+        if (cameras.length === 0) {
+            cctvGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 15px;">No CCTV cameras added yet. Click "+ Add Camera" above.</div>';
+            return;
+        }
+        cctvGrid.innerHTML = cameras.map(cam => `
+            <div class="card cctv-card" style="padding:0; overflow:hidden;">
+                <div class="cctv-card-header">
+                    <strong>${escapeHtml(cam.name)}</strong>
+                    <button type="button" class="icon-btn delete-cam-btn" data-id="${cam.id}">✕</button>
+                </div>
+                <div class="cctv-preview">
+                    ${cam.feedType === 'iframe' ? `<iframe src="${escapeHtml(cam.url)}" style="width:100%; height:100%; border:none;"></iframe>` :
+                      cam.feedType === 'video' ? `<video src="${escapeHtml(cam.url)}" autoplay muted loop style="width:100%; height:100%; object-fit:cover;"></video>` :
+                      `<img src="${escapeHtml(cam.url)}" alt="${escapeHtml(cam.name)}" style="width:100%; height:100%; object-fit:cover;" />`}
+                </div>
+                <div class="cctv-meta">
+                    <div>📍 ${cam.ip ? cam.ip + (cam.port ? ':' + cam.port : '') : 'Direct Feed'}</div>
+                    ${cam.notes ? `<div>📝 ${escapeHtml(cam.notes)}</div>` : ''}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function loadCountdowns() {
+        try {
+            const saved = localStorage.getItem(COUNTDOWNS_KEY);
+            if (saved) countdowns = JSON.parse(saved);
+        } catch(e) { countdowns = []; }
+        renderCountdowns();
+    }
+    function saveCountdowns() { localStorage.setItem(COUNTDOWNS_KEY, JSON.stringify(countdowns)); }
+    function renderCountdowns() {
+        if (!countdownGrid) return;
+        if (countdowns.length === 0) {
+            countdownGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 15px;">No countdowns added yet. Click "+ Add Countdown" above.</div>';
+            return;
+        }
+        const now = new Date();
+        now.setHours(0,0,0,0);
+
+        countdownGrid.innerHTML = countdowns.map(cd => {
+            const targetDate = new Date(cd.date + 'T00:00:00');
+            const diffTime = targetDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            let dayText = `${diffDays} days left`;
+            let isTodayClass = '';
+            if (diffDays === 0) { dayText = "Today! 🎉"; isTodayClass = 'today'; }
+            else if (diffDays < 0) { dayText = "Passed"; }
+
+            return `
+                <div class="card countdown-card">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <h2 style="margin:0; font-size:16px;">${escapeHtml(cd.text)}</h2>
+                        <button type="button" class="icon-btn delete-cd-btn" data-id="${cd.id}">✕</button>
+                    </div>
+                    <div class="countdown-days ${isTodayClass}">${dayText}</div>
+                    <div class="date-display">Target: ${cd.date}</div>
+                </div>
+            `;
+        }).join('');
     }
 
     // Google Calendar API Integration
@@ -2130,6 +2218,10 @@
       if (savedClientId) document.getElementById('gcalClientId').value = savedClientId;
       if (savedApiKey) document.getElementById('gcalApiKey').value = savedApiKey;
 
+      // Load CCTV & Countdowns
+      loadCameras();
+      loadCountdowns();
+
       loadIncomeData();
       renderIncome();
       loadExpenseData();
@@ -2150,6 +2242,73 @@
       
       setInterval(updateClocks, 1000);
       setInterval(fetchWeeklyWeather, 30 * 60 * 1000);
+    });
+
+    // --- CCTV and Countdown Dialog Event Listeners ---
+    addCameraBtn?.addEventListener('click', () => cameraDialog.showModal());
+    cancelCameraBtn?.addEventListener('click', () => cameraDialog.close());
+    cameraForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newCam = {
+            id: generateId(),
+            name: document.getElementById('camName').value.trim(),
+            feedType: document.getElementById('camFeedType').value,
+            url: document.getElementById('camUrl').value.trim(),
+            ip: document.getElementById('camIp').value.trim(),
+            port: document.getElementById('camPort').value.trim(),
+            username: document.getElementById('camUsername').value.trim(),
+            notes: document.getElementById('camNotes').value.trim()
+        };
+        cameras.push(newCam);
+        saveCameras();
+        renderCameras();
+        cameraDialog.close();
+        cameraForm.reset();
+    });
+
+    cctvGrid?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.delete-cam-btn');
+        if (btn) {
+            cameras = cameras.filter(c => c.id !== btn.dataset.id);
+            saveCameras();
+            renderCameras();
+        }
+    });
+
+    addCountdownBtn?.addEventListener('click', () => {
+        const cdDateInput = document.getElementById('cdDate');
+        const today = new Date();
+        cdDateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        countdownDialog.showModal();
+    });
+    cancelCountdownBtn?.addEventListener('click', () => countdownDialog.close());
+    cdRepeatToggle?.addEventListener('change', (e) => {
+        cdRepeatFreqWrapper.style.display = e.target.checked ? 'block' : 'none';
+    });
+    countdownForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newCd = {
+            id: generateId(),
+            text: document.getElementById('cdText').value.trim(),
+            date: document.getElementById('cdDate').value,
+            repeats: cdRepeatToggle.checked,
+            freq: document.getElementById('cdRepeatFreq').value
+        };
+        countdowns.push(newCd);
+        saveCountdowns();
+        renderCountdowns();
+        countdownDialog.close();
+        countdownForm.reset();
+        cdRepeatFreqWrapper.style.display = 'none';
+    });
+
+    countdownGrid?.addEventListener('click', (e) => {
+        const btn = e.target.closest('.delete-cd-btn');
+        if (btn) {
+            countdowns = countdowns.filter(cd => cd.id !== btn.dataset.id);
+            saveCountdowns();
+            renderCountdowns();
+        }
     });
 
     // Event Listeners
