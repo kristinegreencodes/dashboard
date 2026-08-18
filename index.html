@@ -293,12 +293,13 @@
     .countdown-days { font-size: 36px; color: var(--accent-color); font-weight: bold; margin: 10px 0; }
     .countdown-days.today { color: #e74c3c; }
 
-    /* Income Tracker Styles */
+    /* Income & Expense Tracker Styles */
     .income-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
     .income-stat-box { background-color: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 15px; text-align: center; }
     .income-stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
     .income-stat-value { font-size: 24px; font-weight: bold; color: var(--text-main); }
     .income-stat-value.goal { color: var(--accent-color); }
+    .income-stat-value.expense { color: #c1694f; }
     
     .income-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px dotted var(--card-border); }
     .income-history-item:last-child { border-bottom: none; }
@@ -553,26 +554,66 @@
          <details>
             <summary>📜 Income History</summary>
             <div class="collapsible-content">
-               <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;">
-                  <!-- History items go here -->
-               </div>
+               <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
             </div>
          </details>
       </div>
       
-      <!-- NEW: Monthly Overview -->
       <div class="collapsible-section" style="margin-top: 10px;">
          <details>
-            <summary>📊 Monthly Overview</summary>
+            <summary>📊 Monthly Overview (Income)</summary>
             <div class="collapsible-content">
-               <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;">
-                  <!-- Monthly totals go here -->
-               </div>
+               <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
          </details>
       </div>
-
     </div>
+
+    <!-- EXPENSES TRACKER -->
+    <div class="dashboard-section" id="expenseSection">
+      <div class="dashboard-section-header">
+        <h2 class="section-title">💸 Expenses Tracker</h2>
+      </div>
+      
+      <div class="card" style="margin-bottom: 20px; padding: 25px;">
+        <div class="income-stats">
+           <div class="income-stat-box">
+               <div class="income-stat-label">Today's Expenses</div>
+               <div class="income-stat-value expense">$<span id="expenseTodayDisplay">0.00</span></div>
+           </div>
+           <div class="income-stat-box">
+               <div class="income-stat-label">Total Spent This Month</div>
+               <div class="income-stat-value expense">$<span id="expenseTotalDisplay">0.00</span></div>
+           </div>
+        </div>
+        
+        <form id="addExpenseForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+           <input type="number" id="expenseAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
+           <input type="text" id="expenseFor" placeholder="What is it for? (e.g., Supplies)" required style="width: 220px; margin: 0;">
+           <input type="date" id="expenseDate" required style="width: 160px; margin: 0;">
+           <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Expense</button>
+        </form>
+      </div>
+
+      <div class="collapsible-section" style="margin-top: 0;">
+         <details>
+            <summary>📜 Expense History</summary>
+            <div class="collapsible-content">
+               <div id="expenseHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+         </details>
+      </div>
+      
+      <div class="collapsible-section" style="margin-top: 10px;">
+         <details>
+            <summary>📊 Monthly Overview (Expenses)</summary>
+            <div class="collapsible-content">
+               <div id="monthlyExpenseOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+         </details>
+      </div>
+    </div>
+
   </div>
 
   <dialog class="dashboard-dialog" id="cameraDialog">
@@ -799,12 +840,26 @@
     const incomeTotalDisplay = document.getElementById('incomeTotalDisplay');
     const incomeRemainingDisplay = document.getElementById('incomeRemainingDisplay');
     const incomeHistoryList = document.getElementById('incomeHistoryList');
-    const monthlyOverviewList = document.getElementById('monthlyOverviewList'); // NEW
+    const monthlyOverviewList = document.getElementById('monthlyOverviewList');
 
     let incomeGoal = 0;
     let incomeEntries = [];
     const INCOME_GOAL_KEY = 'userIncomeGoal';
     const INCOME_ENTRIES_KEY = 'userIncomeEntries';
+
+    // Expense Tracker Variables
+    const addExpenseForm = document.getElementById('addExpenseForm');
+    const expenseAmountInput = document.getElementById('expenseAmount');
+    const expenseForInput = document.getElementById('expenseFor');
+    const expenseDateInput = document.getElementById('expenseDate');
+
+    const expenseTodayDisplay = document.getElementById('expenseTodayDisplay');
+    const expenseTotalDisplay = document.getElementById('expenseTotalDisplay');
+    const expenseHistoryList = document.getElementById('expenseHistoryList');
+    const monthlyExpenseOverviewList = document.getElementById('monthlyExpenseOverviewList');
+
+    let expenseEntries = [];
+    const EXPENSE_ENTRIES_KEY = 'userExpenseEntries';
 
     // Google Calendar State
     let gcalTokenClient = null;
@@ -1336,24 +1391,19 @@
 
         let todayTotal = 0;
         let monthTotal = 0;
-        const monthlyTotals = {}; // Object to hold totals for Monthly Overview
+        const monthlyTotals = {};
 
         incomeEntries.forEach(entry => {
-            const entryDate = new Date(entry.date + 'T12:00:00'); // Force local noon to avoid timezone shift
-            
-            // Calculate Today and Current Month totals
+            const entryDate = new Date(entry.date + 'T12:00:00');
             if (entry.date === todayStr) todayTotal += parseFloat(entry.amount);
             if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
                 monthTotal += parseFloat(entry.amount);
             }
-
-            // Calculate historical monthly totals
             const monthYearStr = entryDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
             if (!monthlyTotals[monthYearStr]) monthlyTotals[monthYearStr] = 0;
             monthlyTotals[monthYearStr] += parseFloat(entry.amount);
         });
 
-        // Render Top Stats
         incomeGoalDisplay.textContent = incomeGoal.toFixed(2);
         incomeTodayDisplay.textContent = todayTotal.toFixed(2);
         incomeTotalDisplay.textContent = monthTotal.toFixed(2);
@@ -1361,7 +1411,6 @@
         const remaining = Math.max(0, incomeGoal - monthTotal);
         incomeRemainingDisplay.textContent = remaining.toFixed(2);
 
-        // Render Individual Income History
         const sortedEntries = [...incomeEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
         if (sortedEntries.length === 0) {
             incomeHistoryList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No income recorded yet.</div>';
@@ -1380,7 +1429,6 @@
             `).join('');
         }
 
-        // Render Monthly Overview
         if (Object.keys(monthlyTotals).length === 0) {
             monthlyOverviewList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No income recorded yet.</div>';
         } else {
@@ -1421,7 +1469,6 @@
             incomeEntries.push(newEntry);
             saveIncomeData();
             renderIncome();
-            
             incomeAmountInput.value = '';
             incomeSourceInput.value = '';
         });
@@ -1438,6 +1485,104 @@
         });
     }
 
+    // --- Expense Tracker Logic ---
+    function loadExpenseData() {
+        try {
+            const saved = localStorage.getItem(EXPENSE_ENTRIES_KEY);
+            if (saved) expenseEntries = JSON.parse(saved);
+        } catch (e) { expenseEntries = []; }
+    }
+
+    function saveExpenseData() {
+        localStorage.setItem(EXPENSE_ENTRIES_KEY, JSON.stringify(expenseEntries));
+    }
+
+    function renderExpenses() {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        const todayStr = `${yyyy}-${mm}-${dd}`;
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+
+        let todayExpenseTotal = 0;
+        let monthExpenseTotal = 0;
+        const monthlyExpenseTotals = {};
+
+        expenseEntries.forEach(entry => {
+            const entryDate = new Date(entry.date + 'T12:00:00');
+            if (entry.date === todayStr) todayExpenseTotal += parseFloat(entry.amount);
+            if (entryDate.getMonth() === currentMonth && entryDate.getFullYear() === currentYear) {
+                monthExpenseTotal += parseFloat(entry.amount);
+            }
+            const monthYearStr = entryDate.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+            if (!monthlyExpenseTotals[monthYearStr]) monthlyExpenseTotals[monthYearStr] = 0;
+            monthlyExpenseTotals[monthYearStr] += parseFloat(entry.amount);
+        });
+
+        expenseTodayDisplay.textContent = todayExpenseTotal.toFixed(2);
+        expenseTotalDisplay.textContent = monthExpenseTotal.toFixed(2);
+
+        const sortedExpenses = [...expenseEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+        if (sortedExpenses.length === 0) {
+            expenseHistoryList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No expenses recorded yet.</div>';
+        } else {
+            expenseHistoryList.innerHTML = sortedExpenses.map(entry => `
+                <div class="income-history-item">
+                    <div style="display:flex; flex-direction:column;">
+                        <strong>${escapeHtml(entry.forWhat)}</strong>
+                        <span style="font-size: 11px; color: var(--text-muted);">${entry.date}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <strong style="color: #c1694f;">-$${parseFloat(entry.amount).toFixed(2)}</strong>
+                        <button type="button" class="icon-btn delete-expense-btn" data-id="${entry.id}">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        if (Object.keys(monthlyExpenseTotals).length === 0) {
+            monthlyExpenseOverviewList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No expenses recorded yet.</div>';
+        } else {
+            const sortedMonths = Object.keys(monthlyExpenseTotals).sort((a, b) => new Date(b) - new Date(a));
+            monthlyExpenseOverviewList.innerHTML = sortedMonths.map(month => `
+                <div class="income-history-item">
+                    <strong>${month}</strong>
+                    <strong style="color: #c1694f;">-$${monthlyExpenseTotals[month].toFixed(2)}</strong>
+                </div>
+            `).join('');
+        }
+    }
+
+    if(addExpenseForm) {
+        addExpenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newEntry = {
+                id: generateId(),
+                amount: expenseAmountInput.value,
+                forWhat: expenseForInput.value.trim(),
+                date: expenseDateInput.value
+            };
+            expenseEntries.push(newEntry);
+            saveExpenseData();
+            renderExpenses();
+            expenseAmountInput.value = '';
+            expenseForInput.value = '';
+        });
+    }
+
+    if(expenseHistoryList) {
+        expenseHistoryList.addEventListener('click', (e) => {
+            const btn = e.target.closest('.delete-expense-btn');
+            if (btn) {
+                expenseEntries = expenseEntries.filter(entry => entry.id !== btn.dataset.id);
+                saveExpenseData();
+                renderExpenses();
+            }
+        });
+    }
+
 
     // Master Clock & Updates
     function updateCardVisibility() {
@@ -1450,16 +1595,13 @@
     function updateClocks() {
       const now = new Date();
       
-      // Update Local Time
       localTimeEl.textContent = now.toLocaleTimeString('en-US', { hour12: true });
       localDateEl.textContent = now.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short' });
       localTimezoneNameEl.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone.split('/').pop().replace(/_/g, ' ');
 
-      // Update Manila Time
       manilaTimeEl.textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour12: true });
       manilaDateEl.textContent = formatDateWithDay(now, 'Asia/Manila');
 
-      // Update Timezone Cards
       Object.entries(timezoneMap).forEach(([id, info]) => {
         const card = document.getElementById(id + 'Card');
         if (card && card.style.display !== 'none') {
@@ -1501,17 +1643,21 @@
       const sn = localStorage.getItem(NOTEPAD_KEY);
       if(sn) notepad.value = sn;
 
-      // Fill in saved GCal keys in settings
       const savedClientId = localStorage.getItem(GCAL_CLIENT_KEY);
       const savedApiKey = localStorage.getItem(GCAL_API_KEY);
       if (savedClientId) document.getElementById('gcalClientId').value = savedClientId;
       if (savedApiKey) document.getElementById('gcalApiKey').value = savedApiKey;
 
-      // Initialize Income Tracker
+      // Initialize Income & Expense Trackers
       loadIncomeData();
       renderIncome();
+      loadExpenseData();
+      renderExpenses();
+      
       const d = new Date();
-      if(incomeDateInput) incomeDateInput.value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const todayDefault = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      if(incomeDateInput) incomeDateInput.value = todayDefault;
+      if(expenseDateInput) expenseDateInput.value = todayDefault;
 
       updateCardVisibility();
       fetchWeeklyWeather();
