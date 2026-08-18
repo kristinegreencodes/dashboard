@@ -975,7 +975,7 @@
     const habitDurationInput = document.getElementById('habitDuration');
     const habitsContainer = document.getElementById('habitsContainer');
     let habits = [];
-    let habitTimers = {}; // Stores running stopwatch intervals
+    let habitTimers = {};
     const HABITS_KEY = 'userHabitsList';
 
     // Eisenhower Matrix Variables
@@ -1261,19 +1261,19 @@
     // Moon Phase Calculation
     function updateMoonPhase() {
       const now = new Date();
-      let y = now.getFullYear();
-      let m = now.getMonth() + 1;
-      const d = now.getDate();
+      let currentYear = now.getFullYear();
+      let currentMonth = now.getMonth() + 1;
+      const currentDay = now.getDate();
 
       let c = 0, e = 0, jd = 0;
-      if (m < 3) {
-        y -= 1;
-        m += 12;
+      if (currentMonth < 3) {
+        currentYear -= 1;
+        currentMonth += 12;
       }
-      ++m;
-      c = 365.25 * y;
-      e = 30.6 * m;
-      jd = c + e + d - 694039.0; 
+      ++currentMonth;
+      c = 365.25 * currentYear;
+      e = 30.6 * currentMonth;
+      jd = c + e + currentDay - 694039.0; 
       jd /= 29.53058867; 
       let phase = jd - Math.floor(jd); 
       phase = phase * 8; 
@@ -1757,8 +1757,6 @@
     }
 
     // --- Habit Tracker & Stopwatch Logic ---
-    let habitTimers = {}; // { habitId: { intervalId, seconds } }
-
     function loadHabitsData() {
         try {
             const saved = localStorage.getItem(HABITS_KEY);
@@ -1872,16 +1870,13 @@
         const targetSeconds = habit ? parseInt(habit.duration, 10) * 60 : 0;
 
         if (timerObj.isRunning) {
-            // Pause
             clearInterval(timerObj.interval);
             timerObj.isRunning = false;
         } else {
-            // Start
             timerObj.isRunning = true;
             timerObj.interval = setInterval(() => {
                 timerObj.seconds++;
                 
-                // Update timer display directly without re-rendering whole list
                 const timerEl = document.getElementById(`timer-${habitId}`);
                 if (timerEl) {
                     const m = Math.floor(timerObj.seconds / 60).toString().padStart(2, '0');
@@ -1889,12 +1884,10 @@
                     timerEl.textContent = `${m}:${s}`;
                 }
 
-                // Check if target duration is reached
                 if (targetSeconds > 0 && timerObj.seconds >= targetSeconds) {
                     clearInterval(timerObj.interval);
                     timerObj.isRunning = false;
                     
-                    // Auto mark as done today!
                     const today = new Date();
                     const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
                     if (habit) {
@@ -1938,7 +1931,6 @@
 
             const btn = e.target.closest('.delete-habit-btn');
             if (btn) {
-                // Clear timer if running
                 if (habitTimers[btn.dataset.id]) {
                     clearInterval(habitTimers[btn.dataset.id].interval);
                     delete habitTimers[btn.dataset.id];
