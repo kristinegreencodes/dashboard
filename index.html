@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    /* Ghibli-inspired Magical Green Palette */
+    /* Ghibli-inspired Light Moss Green Palette (Default) */
     :root {
       --bg-color: #dcedc8;
       --card-bg: #aed581;
@@ -25,6 +25,19 @@
       --border-radius-sm: 12px;
     }
 
+    /* Ghibli-inspired Dark Midnight Moss Palette */
+    body.dark-theme {
+      --bg-color: #1b2e18;
+      --card-bg: #2d4a26;
+      --card-border: #7cb342;
+      --box-bg: #23381f;
+      --text-main: #dcedc8;
+      --text-muted: #aed581;
+      --shadow: #142112;
+      --accent-color: #e59866;
+      --accent-hover: #d37c46;
+    }
+
     body {
       font-family: 'Mali', cursive;
       background-color: var(--bg-color);
@@ -37,6 +50,7 @@
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
+      transition: background-color 0.3s, color 0.3s;
     }
 
     h1, h2, h3, .section-title, #sidebar h3, #rightSidebar h3, .countdown-text, .add-item-btn {
@@ -99,6 +113,7 @@
       box-shadow: 4px 6px 0px var(--shadow);
       color: var(--text-main);
       position: relative;
+      transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
     /* Left Sidebar */
@@ -113,6 +128,7 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      transition: background 0.3s, border-color 0.3s;
     }
 
     /* Right Sidebar */
@@ -128,7 +144,7 @@
       display: flex;
       flex-direction: column;
       position: relative;
-      transition: width 0.3s ease-in-out;
+      transition: width 0.3s ease-in-out, background 0.3s, border-color 0.3s;
     }
 
     #rightSidebarToggleBtn {
@@ -163,7 +179,7 @@
     .toggle-group label { display: flex; align-items: center; cursor: pointer; font-weight: 600; }
 
     select, input[type="file"], input[type="text"], input[type="url"], input[type="number"], input[type="password"], input[type="date"], input[type="time"], textarea {
-      font-family: 'Mali', cursive; border: 2px dashed var(--card-border); border-radius: 8px; padding: 8px; background-color: #fff; color: var(--text-main); width: 100%; box-sizing: border-box; font-weight: 600;
+      font-family: 'Mali', cursive; border: 2px dashed var(--card-border); border-radius: 8px; padding: 8px; background-color: var(--box-bg); color: var(--text-main); width: 100%; box-sizing: border-box; font-weight: 600;
     }
 
     button { font-family: 'Mali', cursive; font-weight: bold; }
@@ -227,9 +243,9 @@
 
     /* To-Do List */
     #todoList { list-style: none; padding: 0; margin: 0; }
-    #todoList li { display: flex; align-items: center; background-color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 2px dashed var(--card-border); font-weight: 600; }
+    #todoList li { display: flex; align-items: center; background-color: var(--box-bg); padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 2px dashed var(--card-border); font-weight: 600; }
     #todoList li input[type="checkbox"] { width: auto; margin-right: 10px; transform: scale(1.2); }
-    #todoList li.completed { background-color: var(--bg-color); color: var(--text-muted); text-decoration: line-through; border-style: solid; opacity: 0.8; }
+    #todoList li.completed { background-color: var(--card-bg); color: var(--text-muted); text-decoration: line-through; border-style: solid; opacity: 0.8; }
 
     /* Collapsible Sections */
     .collapsible-section details { background-color: var(--box-bg); border: 3px solid var(--card-border); border-radius: 16px; margin-bottom: 15px; overflow: hidden; }
@@ -242,7 +258,7 @@
 
     /* Fasting Tracker & Pomodoro Timer inside Sidebar */
     .fasting-timer-box {
-      background-color: #fff; border-radius: 12px; padding: 10px; margin: 10px 0; border: 2px dashed var(--card-border); opacity: 0.5; transition: all 0.3s ease; text-align: center;
+      background-color: var(--box-bg); border-radius: 12px; padding: 10px; margin: 10px 0; border: 2px dashed var(--card-border); opacity: 0.5; transition: all 0.3s ease; text-align: center;
     }
     .fasting-timer-box.active { opacity: 1; transform: scale(1.02); border-style: solid; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
     .fasting-timer-box .label { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
@@ -272,10 +288,10 @@
 
     /* Calculator */
     #calculator { padding: 15px; }
-    #calculatorDisplay { border: 3px solid var(--card-border); background-color: #fff; font-size: 24px; text-align: right; padding: 10px; margin-bottom: 15px; }
+    #calculatorDisplay { border: 3px solid var(--card-border); background-color: var(--box-bg); font-size: 24px; text-align: right; padding: 10px; margin-bottom: 15px; }
     .calculator-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    .calculator-buttons button { padding: 15px 0; font-size: 1.2em; border: 2px solid var(--card-border); border-radius: 12px; cursor: pointer; background-color: #fff; color: var(--text-main); }
-    .calculator-buttons button:hover { background-color: var(--bg-color); }
+    .calculator-buttons button { padding: 15px 0; font-size: 1.2em; border: 2px solid var(--card-border); border-radius: 12px; cursor: pointer; background-color: var(--box-bg); color: var(--text-main); }
+    .calculator-buttons button:hover { background-color: var(--card-bg); }
     .calculator-buttons button.operator { background-color: var(--card-bg); }
     .calculator-buttons button.equals { background-color: var(--accent-color); color: white; border-color: var(--accent-hover); grid-column: span 2; }
     .calculator-buttons button.clear { background-color: var(--card-border); color: white; }
@@ -286,7 +302,7 @@
     .add-item-btn { background-color: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; box-shadow: 2px 4px 0px rgba(0,0,0,0.1); }
     .add-item-btn:hover { background-color: var(--accent-hover); }
 
-    .cctv-preview { width: 100%; aspect-ratio: 16 / 9; background-color: var(--bg-color); border-bottom: 3px dashed var(--card-border); border-top: 3px dashed var(--card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
+    .cctv-preview { width: 100%; aspect-ratio: 16 / 9; background-color: var(--box-bg); border-bottom: 3px dashed var(--card-border); border-top: 3px dashed var(--card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .cctv-card-header { padding: 15px; display: flex; justify-content: space-between;}
     .cctv-meta { padding: 15px; font-size: 13px; font-weight: 600;}
 
@@ -296,41 +312,41 @@
 
     /* Income & Expense Tracker Styles */
     .income-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-    .income-stat-box { background-color: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 15px; text-align: center; }
+    .income-stat-box { background-color: var(--box-bg); border: 2px dashed var(--card-border); border-radius: 12px; padding: 15px; text-align: center; }
     .income-stat-label { font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
     .income-stat-value { font-size: 24px; font-weight: bold; color: var(--text-main); }
     .income-stat-value.goal { color: var(--accent-color); }
-    .income-stat-value.expense { color: #c1694f; }
+    .income-stat-value.expense { color: #e59866; }
     
     .income-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px dotted var(--card-border); }
     .income-history-item:last-child { border-bottom: none; }
 
     /* Habit Tracker & Eisenhower Matrix Styles */
-    .habit-card { background: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .habit-card { background: var(--box-bg); border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
     .habit-info { display: flex; flex-direction: column; }
     .habit-title { font-weight: bold; font-size: 15px; color: var(--text-main); }
     .habit-meta { font-size: 11px; color: var(--text-muted); }
     
     .habit-tracker-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .habit-streak { font-size: 11px; font-weight: bold; background: var(--box-bg); padding: 3px 6px; border-radius: 6px; border: 1px dashed var(--card-border); color: var(--accent-color); }
-    .habit-timer { font-family: monospace; font-size: 13px; font-weight: bold; background: var(--box-bg); padding: 3px 8px; border-radius: 6px; border: 1px dashed var(--card-border); }
+    .habit-streak { font-size: 11px; font-weight: bold; background: var(--card-bg); padding: 3px 6px; border-radius: 6px; border: 1px dashed var(--card-border); color: var(--accent-color); }
+    .habit-timer { font-family: monospace; font-size: 13px; font-weight: bold; background: var(--card-bg); padding: 3px 8px; border-radius: 6px; border: 1px dashed var(--card-border); }
     .habit-dots { display: flex; gap: 5px; align-items: center; }
     .habit-dot-wrap { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: var(--text-muted); }
-    .habit-dot { width: 14px; height: 14px; border-radius: 50%; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 8px; }
+    .habit-dot { width: 14px; height: 14px; border-radius: 50%; background-color: rgba(124,179,66,0.3); display: flex; align-items: center; justify-content: center; font-size: 8px; }
     .habit-dot.completed { background-color: var(--card-border); color: white; }
 
     .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-    .matrix-quadrant { background: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px; min-height: 140px; display: flex; flex-direction: column; }
+    .matrix-quadrant { background: var(--box-bg); border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px; min-height: 140px; display: flex; flex-direction: column; }
     .matrix-q-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid var(--card-border); padding-bottom: 4px; color: var(--text-main); }
     .matrix-list { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; max-height: 120px; font-size: 12px; }
-    .matrix-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dotted rgba(85,139,47,0.3); }
+    .matrix-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dotted rgba(124,179,66,0.3); }
 
     .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--card-border); }
     .icon-btn:hover { color: #e74c3c; }
 
     /* Dialogs */
-    dialog.dashboard-dialog { padding: 0; width: min(420px, 92vw); }
-    dialog.dashboard-dialog::backdrop { background: rgba(0,0,0,0.4); }
+    dialog.dashboard-dialog { padding: 0; width: min(420px, 92vw); background-color: var(--box-bg); color: var(--text-main); border: 3px solid var(--card-border); border-radius: var(--border-radius-lg); }
+    dialog.dashboard-dialog::backdrop { background: rgba(0,0,0,0.6); }
     .dashboard-dialog form { display: flex; flex-direction: column; padding: 25px; gap: 15px; }
     .dashboard-dialog label { font-weight: 600; display: flex; flex-direction: column; gap: 5px; }
     .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
@@ -343,8 +359,10 @@
     ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 5px; }
 
     /* Translucency for wallpaper */
-    body.has-wallpaper #sidebar, body.has-wallpaper #rightSidebar { background: rgba(174, 213, 129, 0.85); backdrop-filter: blur(8px); }
-    body.has-wallpaper .card, body.has-wallpaper #sidebarLocalTimeCard, body.has-wallpaper #sidebarManilaTimeCard, body.has-wallpaper .collapsible-section details { background: rgba(241, 248, 233, 0.9); backdrop-filter: blur(5px); }
+    body.has-wallpaper #sidebar, body.has-wallpaper #rightSidebar { background: rgba(45, 74, 38, 0.85); backdrop-filter: blur(8px); }
+    body.has-wallpaper:not(.dark-theme) #sidebar, body.has-wallpaper:not(.dark-theme) #rightSidebar { background: rgba(174, 213, 129, 0.85); }
+    body.has-wallpaper .card, body.has-wallpaper #sidebarLocalTimeCard, body.has-wallpaper #sidebarManilaTimeCard, body.has-wallpaper .collapsible-section details { background: rgba(35, 56, 31, 0.9); backdrop-filter: blur(5px); }
+    body.has-wallpaper:not(.dark-theme) .card, body.has-wallpaper:not(.dark-theme) #sidebarLocalTimeCard, body.has-wallpaper:not(.dark-theme) #sidebarManilaTimeCard, body.has-wallpaper:not(.dark-theme) .collapsible-section details { background: rgba(241, 248, 233, 0.9); }
 
     @media (max-width: 850px) {
       body { flex-direction: column; }
@@ -415,6 +433,11 @@
         <details>
             <summary>⚙️ Settings</summary>
             <div class="collapsible-content">
+                <!-- Theme Toggle -->
+                <div class="toggle-group" style="margin-bottom: 12px;">
+                    <label><input type="checkbox" id="darkThemeToggle" style="width: auto; margin-right: 8px;" /> 🌙 Dark Ghibli Theme</label>
+                </div>
+
                 <!-- Google Calendar API Settings -->
                 <details>
                     <summary>🔑 Google Calendar Keys</summary>
@@ -900,6 +923,7 @@
     
     const weeklyForecastList = document.getElementById('weeklyForecastList');
     const moonPhaseDisplay = document.getElementById('moonPhaseDisplay');
+    const darkThemeToggle = document.getElementById('darkThemeToggle');
     
     const todoInput = document.getElementById('todoInput');
     const todoList = document.getElementById('todoList');
@@ -1024,6 +1048,7 @@
     const SETTINGS_KEY = 'userTimezoneSettings';
     const BACKGROUND_KEY = 'userBackgroundImage';
     const CALENDAR_TZ_KEY = 'calendarTimezonePreference';
+    const DARK_THEME_KEY = 'userDarkThemePreference';
     const TODO_KEY = 'userTodoList';
     const NOTEPAD_KEY = 'userNotepadContent';
     const GCAL_CLIENT_KEY = 'userGcalClientId';
@@ -1054,6 +1079,7 @@
       try {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
         localStorage.setItem(CALENDAR_TZ_KEY, calendarTimezoneSelect.value);
+        localStorage.setItem(DARK_THEME_KEY, darkThemeToggle.checked ? 'true' : 'false');
       } catch (e) {}
     }
 
@@ -1065,6 +1091,14 @@
           customSelects.forEach(s => { if (savedSettings.customTimezones.hasOwnProperty(s.dataset.customId)) s.value = savedSettings.customTimezones[s.dataset.customId]; });
         }
         calendarTimezoneSelect.value = localStorage.getItem(CALENDAR_TZ_KEY) || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        
+        const isDark = localStorage.getItem(DARK_THEME_KEY) === 'true';
+        if (darkThemeToggle) darkThemeToggle.checked = isDark;
+        if (isDark) {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
       } catch (e) {}
     }
 
@@ -1708,7 +1742,7 @@
                         <span style="font-size: 11px; color: var(--text-muted);">${entry.date}</span>
                     </div>
                     <div style="display:flex; align-items:center; gap: 10px;">
-                        <strong style="color: #c1694f;">-$${parseFloat(entry.amount).toFixed(2)}</strong>
+                        <strong style="color: #e59866;">-$${parseFloat(entry.amount).toFixed(2)}</strong>
                         <button type="button" class="icon-btn delete-expense-btn" data-id="${entry.id}">✕</button>
                     </div>
                 </div>
@@ -1722,7 +1756,7 @@
             monthlyExpenseOverviewList.innerHTML = sortedMonths.map(month => `
                 <div class="income-history-item">
                     <strong>${month}</strong>
-                    <strong style="color: #c1694f;">-$${monthlyExpenseTotals[month].toFixed(2)}</strong>
+                    <strong style="color: #e59866;">-$${monthlyExpenseTotals[month].toFixed(2)}</strong>
                 </div>
             `).join('');
         }
@@ -2123,6 +2157,15 @@
     customSelects.forEach(s => s.addEventListener('change', () => { saveSettings(); updateClocks(); }));
     calendarTimezoneSelect.addEventListener('change', () => { saveSettings(); renderSmallCalendar(); });
     
+    darkThemeToggle?.addEventListener('change', () => {
+        if (darkThemeToggle.checked) {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+        saveSettings();
+    });
+
     document.getElementById('bgUploadInput').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
