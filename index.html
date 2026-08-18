@@ -306,15 +306,17 @@
     .income-history-item:last-child { border-bottom: none; }
 
     /* Habit Tracker & Eisenhower Matrix Styles */
-    .habit-card { background: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 15px; margin-bottom: 15px; }
-    .habit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .habit-title { font-weight: bold; font-size: 16px; color: var(--text-main); }
-    .habit-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
-    .habit-chart-container { background: var(--box-bg); border-radius: 8px; padding: 10px; height: 80px; display: flex; align-items: flex-end; gap: 4px; border: 1px dashed var(--card-border); }
-    .habit-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; }
-    .habit-bar { width: 100%; background-color: var(--card-border); border-radius: 4px 4px 0 0; transition: height 0.3s; }
-    .habit-bar.completed { background-color: var(--accent-color); }
-    .habit-bar-label { font-size: 9px; color: var(--text-muted); margin-top: 4px; }
+    .habit-card { background: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+    .habit-info { display: flex; flex-direction: column; }
+    .habit-title { font-weight: bold; font-size: 15px; color: var(--text-main); }
+    .habit-meta { font-size: 11px; color: var(--text-muted); }
+    
+    .habit-tracker-row { display: flex; align-items: center; gap: 12px; }
+    .habit-streak { font-size: 12px; font-weight: bold; background: var(--box-bg); padding: 4px 8px; border-radius: 8px; border: 1px dashed var(--card-border); color: var(--accent-color); }
+    .habit-dots { display: flex; gap: 6px; align-items: center; }
+    .habit-dot-wrap { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: var(--text-muted); }
+    .habit-dot { width: 16px; height: 16px; border-radius: 50%; background-color: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 9px; }
+    .habit-dot.completed { background-color: var(--card-border); color: white; }
 
     .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .matrix-quadrant { background: #fff; border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px; min-height: 140px; display: flex; flex-direction: column; }
@@ -671,7 +673,7 @@
             </form>
           </div>
           <div id="habitsContainer">
-             <!-- Habits with progress graphs will render here -->
+             <!-- Habits with compact streak/dot matrix render here -->
           </div>
         </div>
       </details>
@@ -1762,7 +1764,6 @@
             return;
         }
 
-        // Generate past 7 days for the chart
         const today = new Date();
         const pastDays = [];
         for (let i = 6; i >= 0; i--) {
@@ -1779,16 +1780,36 @@
         habitsContainer.innerHTML = habits.map(habit => {
             if (!habit.logs) habit.logs = {};
             
-            // Build 7-day bar chart HTML
-            let chartHtml = '';
+            // Calculate current streak
+            let streak = 0;
+            let checkDate = new Date(today);
+            while (true) {
+                const yyyy = checkDate.getFullYear();
+                const mm = String(checkDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(checkDate.getDate()).padStart(2, '0');
+                const dStr = `${yyyy}-${mm}-${dd}`;
+                if (habit.logs[dStr]) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1);
+                } else {
+                    // if today isn't checked yet, don't break streak from yesterday
+                    if (dStr === pastDays[6].dateStr) {
+                        checkDate.setDate(checkDate.getDate() - 1);
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            // Build 7-day dot matrix HTML
+            let dotsHtml = '';
             pastDays.forEach(day => {
                 const isCompleted = habit.logs[day.dateStr] ? true : false;
-                const barHeight = isCompleted ? '100%' : '15%';
-                const barClass = isCompleted ? 'habit-bar completed' : 'habit-bar';
-                chartHtml += `
-                    <div class="habit-bar-wrap">
-                        <div class="${barClass}" style="height: ${barHeight};" title="${day.dateStr}: ${isCompleted ? 'Done' : 'Not done'}"></div>
-                        <span class="habit-bar-label">${day.label}</span>
+                const dotClass = isCompleted ? 'habit-dot completed' : 'habit-dot';
+                dotsHtml += `
+                    <div class="habit-dot-wrap">
+                        <div class="${dotClass}" title="${day.dateStr}: ${isCompleted ? 'Done' : 'Not done'}">${isCompleted ? '✓' : ''}</div>
+                        <span>${day.label}</span>
                     </div>
                 `;
             });
@@ -1798,18 +1819,19 @@
 
             return `
                 <div class="habit-card" data-id="${habit.id}">
-                    <div class="habit-header">
+                    <div class="habit-info">
                         <span class="habit-title">${escapeHtml(habit.name)}</span>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label style="font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 4px;">
-                                <input type="checkbox" class="habit-check" data-id="${habit.id}" ${isTodayDone ? 'checked' : ''} style="transform: scale(1.2);"> Done Today
-                            </label>
-                            <button type="button" class="icon-btn delete-habit-btn" data-id="${habit.id}">✕</button>
-                        </div>
+                        <span class="habit-meta">⏰ ${habit.time} • ⏱️ ${habit.duration}m</span>
                     </div>
-                    <div class="habit-meta">⏰ Scheduled at: <strong>${habit.time}</strong> • ⏱️ Duration: <strong>${habit.duration} mins</strong></div>
-                    <div class="habit-chart-container">
-                        ${chartHtml}
+                    <div class="habit-tracker-row">
+                        <span class="habit-streak">🔥 ${streak} day streak</span>
+                        <div class="habit-dots">
+                            ${dotsHtml}
+                        </div>
+                        <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; margin-left: 5px;">
+                            <input type="checkbox" class="habit-check" data-id="${habit.id}" ${isTodayDone ? 'checked' : ''} style="transform: scale(1.1);"> Done
+                        </label>
+                        <button type="button" class="icon-btn delete-habit-btn" data-id="${habit.id}" style="font-size: 15px;">✕</button>
                     </div>
                 </div>
             `;
@@ -1904,7 +1926,6 @@
             }
         });
 
-        // If any quadrant is empty, show placeholder
         Object.keys(lists).forEach(qKey => {
             if (lists[qKey].children.length === 0) {
                 lists[qKey].innerHTML = '<li style="color: var(--text-muted); text-align: center; padding: 10px;">No tasks.</li>';
