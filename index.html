@@ -10,14 +10,14 @@
   <style>
     /* Ghibli-inspired Magical Green Palette */
     :root {
-      --bg-color: #dcedc8;       /* Soft background green */
-      --card-bg: #aed581;        /* Main moss green */
-      --card-border: #558b2f;    /* Deep forest border */
-      --box-bg: #f1f8e9;         /* Creamy inside box */
-      --text-main: #33691e;      /* Dark green text */
-      --text-muted: #558b2f;     /* Muted green text */
-      --shadow: #7cb342;         /* Drop shadow */
-      --accent-color: #d98e5f;   /* Warm terracotta accent */
+      --bg-color: #dcedc8;
+      --card-bg: #aed581;
+      --card-border: #558b2f;
+      --box-bg: #f1f8e9;
+      --text-main: #33691e;
+      --text-muted: #558b2f;
+      --shadow: #7cb342;
+      --accent-color: #d98e5f;
       --accent-hover: #c1774a;
       
       --sidebar-width: 280px;
@@ -91,7 +91,7 @@
       50% { transform: translateY(-10px); }
     }
 
-    /* Base Styling for Cards and Containers */
+    /* Base Styling */
     .card, #sidebarLocalTimeCard, #smallCalendar, #calculator, #weatherHeader, .countdown-card, .cctv-card, .dashboard-dialog {
       background-color: var(--box-bg);
       border: 3px solid var(--card-border);
@@ -152,458 +152,101 @@
       z-index: 10;
     }
 
-    #rightSidebar.collapsed {
-      width: 0;
-      padding: 0;
-      border-left: none;
-    }
-
-    #rightSidebar.collapsed #rightSidebarToggleBtn {
-      left: 0;
-      border-left: none;
-      border-right: 4px solid var(--card-border);
-      border-radius: 0 16px 16px 0;
-    }
-
+    #rightSidebar.collapsed { width: 0; padding: 0; border-left: none; }
+    #rightSidebar.collapsed #rightSidebarToggleBtn { left: 0; border-left: none; border-right: 4px solid var(--card-border); border-radius: 0 16px 16px 0; }
     #rightSidebarToggleBtn.collapsed-arrow::before { content: '◀'; }
     #rightSidebarToggleBtn:not(.collapsed-arrow)::before { content: '▶'; }
 
-    /* General sidebar content styling */
-    #sidebar h3, #rightSidebar h3 {
-      margin-top: 0;
-      font-size: 18px;
-      border-bottom: 3px dashed var(--card-border);
-      padding-bottom: 10px;
-    }
+    #sidebar h3, #rightSidebar h3 { margin-top: 0; font-size: 18px; border-bottom: 3px dashed var(--card-border); padding-bottom: 10px; }
 
-    .toggle-group {
-      margin-bottom: 15px;
-      background: var(--box-bg);
-      padding: 10px;
-      border-radius: var(--border-radius-sm);
-      border: 2px dashed var(--card-border);
-    }
-
-    .toggle-group label {
-      display: flex;
-      align-items: center;
-      cursor: pointer;
-      font-weight: 600;
-    }
+    .toggle-group { margin-bottom: 15px; background: var(--box-bg); padding: 10px; border-radius: var(--border-radius-sm); border: 2px dashed var(--card-border); }
+    .toggle-group label { display: flex; align-items: center; cursor: pointer; font-weight: 600; }
 
     select, input[type="file"], input[type="text"], input[type="url"], input[type="number"], input[type="password"], input[type="date"], textarea {
-      font-family: 'Mali', cursive;
-      border: 2px dashed var(--card-border);
-      border-radius: 8px;
-      padding: 8px;
-      background-color: #fff;
-      color: var(--text-main);
-      width: 100%;
-      box-sizing: border-box;
-      font-weight: 600;
+      font-family: 'Mali', cursive; border: 2px dashed var(--card-border); border-radius: 8px; padding: 8px; background-color: #fff; color: var(--text-main); width: 100%; box-sizing: border-box; font-weight: 600;
     }
 
-    button {
-      font-family: 'Mali', cursive;
-      font-weight: bold;
-    }
-
-    #clearBackgroundBtn, .cancel-btn {
-      margin-top: 8px;
-      width: 100%;
-      padding: 8px;
-      background-color: var(--card-border);
-      border: none;
-      border-radius: 8px;
-      color: white;
-      cursor: pointer;
-    }
-    
-    #clearBackgroundBtn:hover, .cancel-btn:hover {
-      background-color: var(--text-main);
-    }
+    button { font-family: 'Mali', cursive; font-weight: bold; }
+    #clearBackgroundBtn, .cancel-btn { margin-top: 8px; width: 100%; padding: 8px; background-color: var(--card-border); border: none; border-radius: 8px; color: white; cursor: pointer; }
+    #clearBackgroundBtn:hover, .cancel-btn:hover { background-color: var(--text-main); }
 
     /* Main content */
-    #mainContent {
-      flex-grow: 1;
-      padding: 30px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
+    #mainContent { flex-grow: 1; padding: 30px; box-sizing: border-box; overflow-y: auto; }
 
-    /* Weather Header */
-    #weatherHeader {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      padding: 16px 24px;
-      margin: 0 auto 30px auto;
-      max-width: 480px;
-    }
+    #weatherHeader { display: flex; align-items: center; justify-content: center; gap: 16px; padding: 16px 24px; margin: 0 auto 30px auto; max-width: 480px; }
+    #weatherHeader .weather-icon { font-size: 42px; line-height: 1; }
+    #weatherHeader .weather-temp { font-size: 26px; font-weight: 700; color: var(--text-main); }
+    #weatherHeader .weather-desc, #weatherHeader .weather-location { font-size: 14px; color: var(--text-muted); font-weight: 600; }
 
-    #weatherHeader .weather-icon {
-      font-size: 42px;
-      line-height: 1;
-    }
-
-    #weatherHeader .weather-temp {
-      font-size: 26px;
-      font-weight: 700;
-      color: var(--text-main);
-    }
-
-    #weatherHeader .weather-desc, #weatherHeader .weather-location {
-      font-size: 14px;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-    }
-
-    .card {
-      padding: 25px 20px;
-      text-align: center;
-    }
-
-    .card h2 {
-      font-size: 18px;
-      margin-top: 0;
-      margin-bottom: 12px;
-    }
-
-    .time-display {
-      font-family: 'Mali', cursive;
-      font-size: 32px;
-      font-weight: bold;
-      margin-bottom: 6px;
-      letter-spacing: 1px;
-    }
-
-    .date-display {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-muted);
-    }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+    .card { padding: 25px 20px; text-align: center; }
+    .card h2 { font-size: 18px; margin-top: 0; margin-bottom: 12px; }
+    .time-display { font-size: 32px; font-weight: bold; margin-bottom: 6px; letter-spacing: 1px; }
+    .date-display { font-size: 14px; font-weight: 600; color: var(--text-muted); }
 
     /* Sidebar Local Time Card */
-    #sidebarLocalTimeCard {
-      padding: 20px 15px;
-      margin-bottom: 20px;
-      text-align: center;
-    }
-
-    #sidebarLocalTimeCard h2 {
-      font-size: 16px;
-      margin-top: 0;
-      margin-bottom: 8px;
-    }
+    #sidebarLocalTimeCard { padding: 20px 15px; margin-bottom: 20px; text-align: center; }
+    #sidebarLocalTimeCard h2 { font-size: 16px; margin-top: 0; margin-bottom: 8px; }
 
     /* Calendar */
-    #smallCalendarContainer {
-      margin-bottom: 20px;
-    }
-
-    #smallCalendar {
-      padding: 15px;
-      margin-top: 10px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    #smallCalendar caption {
-      font-weight: bold;
-      font-size: 16px;
-      margin-bottom: 10px;
-    }
-
-    #smallCalendar table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    #smallCalendar th, #smallCalendar td {
-      width: 14.28%;
-      text-align: center;
-      padding: 6px 0;
-    }
-
-    #smallCalendar .today {
-      background-color: var(--accent-color);
-      color: white;
-      border-radius: 50%;
-      font-weight: bold;
-    }
+    #smallCalendarContainer { margin-bottom: 20px; }
+    #smallCalendar { padding: 15px; margin-top: 10px; font-size: 14px; font-weight: 600; }
+    #smallCalendar caption { font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+    #smallCalendar table { width: 100%; border-collapse: collapse; }
+    #smallCalendar th, #smallCalendar td { width: 14.28%; text-align: center; padding: 6px 0; }
+    #smallCalendar .today { background-color: var(--accent-color); color: white; border-radius: 50%; font-weight: bold; }
 
     /* To-Do List */
-    #todoList {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-
-    #todoList li {
-      display: flex;
-      align-items: center;
-      background-color: #fff;
-      padding: 10px;
-      margin-bottom: 8px;
-      border-radius: 8px;
-      border: 2px dashed var(--card-border);
-      font-weight: 600;
-    }
-
-    #todoList li input[type="checkbox"] {
-      width: auto;
-      margin-right: 10px;
-      transform: scale(1.2);
-    }
-
-    #todoList li.completed {
-      background-color: var(--bg-color);
-      color: var(--text-muted);
-      text-decoration: line-through;
-      border-style: solid;
-      opacity: 0.8;
-    }
+    #todoList { list-style: none; padding: 0; margin: 0; }
+    #todoList li { display: flex; align-items: center; background-color: #fff; padding: 10px; margin-bottom: 8px; border-radius: 8px; border: 2px dashed var(--card-border); font-weight: 600; }
+    #todoList li input[type="checkbox"] { width: auto; margin-right: 10px; transform: scale(1.2); }
+    #todoList li.completed { background-color: var(--bg-color); color: var(--text-muted); text-decoration: line-through; border-style: solid; opacity: 0.8; }
 
     /* Collapsible Sections */
-    .collapsible-section details {
-      background-color: var(--box-bg);
-      border: 3px solid var(--card-border);
-      border-radius: 16px;
-      margin-bottom: 15px;
-      overflow: hidden;
-    }
-
-    .collapsible-section summary {
-      display: block;
-      padding: 12px;
-      font-weight: bold;
-      cursor: pointer;
-      background-color: var(--card-bg);
-      border-bottom: 3px solid transparent;
-    }
-
-    .collapsible-section details[open] summary {
-      border-bottom-color: var(--card-border);
-    }
-
-    .collapsible-section .collapsible-content {
-      padding: 15px;
-      font-size: 14px;
-    }
-
+    .collapsible-section details { background-color: var(--box-bg); border: 3px solid var(--card-border); border-radius: 16px; margin-bottom: 15px; overflow: hidden; }
+    .collapsible-section summary { display: block; padding: 12px; font-weight: bold; cursor: pointer; background-color: var(--card-bg); border-bottom: 3px solid transparent; }
+    .collapsible-section details[open] summary { border-bottom-color: var(--card-border); }
+    .collapsible-section .collapsible-content { padding: 15px; font-size: 14px; }
     .collapsible-section summary::-webkit-details-marker { display: none; }
-    .collapsible-section summary::before {
-      content: '🌱 ';
-      display: inline-block;
-      margin-right: 5px;
-    }
-    .collapsible-section details[open] summary::before {
-      content: '🌿 ';
-    }
-
-    /* Fixed Donate Button */
-    #fixedDonateButtonContainer {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 1000;
-    }
-
-    #fixedDonateButtonContainer details {
-      border: 3px solid var(--card-border);
-      border-radius: 16px;
-      background-color: var(--box-bg);
-      box-shadow: 4px 6px 0px var(--shadow);
-      width: 250px;
-    }
-
-    #fixedDonateButtonContainer details:not([open]) { width: auto; }
-
-    #fixedDonateButtonContainer summary {
-      display: block;
-      padding: 12px 18px;
-      font-weight: bold;
-      cursor: pointer;
-      background-color: var(--accent-color);
-      color: white;
-      border-radius: 12px;
-    }
-
-    #fixedDonateButtonContainer .donate-content {
-      padding: 15px;
-      font-size: 14px;
-      font-weight: 600;
-    }
-
-    #fixedDonateButtonContainer .donate-content a {
-      display: block;
-      text-align: center;
-      padding: 10px;
-      background-color: var(--accent-color);
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-
-    /* Notifications / Reminders */
-    #dstReminder, #holidayReminder, #yearEndCountdownContainer {
-      background-color: var(--box-bg);
-      border: 3px dashed var(--card-border);
-      padding: 15px;
-      border-radius: 16px;
-      margin-bottom: 20px;
-      text-align: center;
-      font-weight: 600;
-    }
-
-    #yearEndCountdownValue {
-      color: var(--accent-hover);
-      font-weight: bold;
-      font-size: 1.1em;
-    }
-
-    /* Notepad */
-    #notepadContainer {
-      display: flex;
-      flex-direction: column;
-    }
-    #notepad {
-      height: 150px;
-      resize: vertical;
-    }
-
-    /* Calculator */
-    #calculator {
-      padding: 15px;
-    }
-    #calculatorDisplay {
-      border: 3px solid var(--card-border);
-      background-color: #fff;
-      font-size: 24px;
-      text-align: right;
-      padding: 10px;
-      margin-bottom: 15px;
-    }
-    .calculator-buttons {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-    .calculator-buttons button {
-      padding: 15px 0;
-      font-size: 1.2em;
-      border: 2px solid var(--card-border);
-      border-radius: 12px;
-      cursor: pointer;
-      background-color: #fff;
-      color: var(--text-main);
-    }
-    .calculator-buttons button:hover {
-      background-color: var(--bg-color);
-    }
-    .calculator-buttons button.operator {
-      background-color: var(--card-bg);
-    }
-    .calculator-buttons button.equals {
-      background-color: var(--accent-color);
-      color: white;
-      border-color: var(--accent-hover);
-      grid-column: span 2;
-    }
-    .calculator-buttons button.clear {
-      background-color: var(--card-border);
-      color: white;
-    }
+    .collapsible-section summary::before { content: '🌱 '; display: inline-block; margin-right: 5px; }
+    .collapsible-section details[open] summary::before { content: '🌿 '; }
 
     /* Fasting Tracker inside Sidebar */
     .fasting-timer-box {
-      background-color: #fff;
-      border-radius: 12px;
-      padding: 10px;
-      margin: 10px 0;
-      border: 2px dashed var(--card-border);
-      opacity: 0.5;
-      transition: all 0.3s ease;
-      text-align: center;
+      background-color: #fff; border-radius: 12px; padding: 10px; margin: 10px 0; border: 2px dashed var(--card-border); opacity: 0.5; transition: all 0.3s ease; text-align: center;
     }
-    .fasting-timer-box.active {
-      opacity: 1;
-      transform: scale(1.02);
-      border-style: solid;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-    .fasting-timer-box .label {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-    .fasting-timer-box .time {
-      font-size: 24px;
-      font-weight: bold;
-      letter-spacing: 1px;
-    }
-    #fastingSettingsBtn {
-      position: absolute;
-      top: -5px;
-      right: 0;
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      transition: transform 0.2s;
-      padding: 0;
-    }
-    #fastingSettingsBtn:hover {
-      transform: rotate(45deg);
-    }
-    #fasting-settings-panel {
-      display: none;
-      background-color: var(--bg-color);
-      padding: 10px;
-      border-radius: 12px;
-      border: 2px dashed var(--card-border);
-      margin-bottom: 10px;
-    }
+    .fasting-timer-box.active { opacity: 1; transform: scale(1.02); border-style: solid; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .fasting-timer-box .label { font-size: 14px; font-weight: 600; margin-bottom: 5px; }
+    .fasting-timer-box .time { font-size: 24px; font-weight: bold; letter-spacing: 1px; }
+    #fastingSettingsBtn { position: absolute; top: -5px; right: 0; background: none; border: none; font-size: 18px; cursor: pointer; transition: transform 0.2s; padding: 0; }
+    #fastingSettingsBtn:hover { transform: rotate(45deg); }
+    #fasting-settings-panel { display: none; background-color: var(--bg-color); padding: 10px; border-radius: 12px; border: 2px dashed var(--card-border); margin-bottom: 10px; }
+
+    /* Notifications / Reminders */
+    #dstReminder, #holidayReminder, #yearEndCountdownContainer { background-color: var(--box-bg); border: 3px dashed var(--card-border); padding: 15px; border-radius: 16px; margin-bottom: 20px; text-align: center; font-weight: 600; }
+    #yearEndCountdownValue { color: var(--accent-hover); font-weight: bold; font-size: 1.1em; }
+
+    /* Notepad */
+    #notepadContainer { display: flex; flex-direction: column; }
+    #notepad { height: 150px; resize: vertical; }
+
+    /* Calculator */
+    #calculator { padding: 15px; }
+    #calculatorDisplay { border: 3px solid var(--card-border); background-color: #fff; font-size: 24px; text-align: right; padding: 10px; margin-bottom: 15px; }
+    .calculator-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .calculator-buttons button { padding: 15px 0; font-size: 1.2em; border: 2px solid var(--card-border); border-radius: 12px; cursor: pointer; background-color: #fff; color: var(--text-main); }
+    .calculator-buttons button:hover { background-color: var(--bg-color); }
+    .calculator-buttons button.operator { background-color: var(--card-bg); }
+    .calculator-buttons button.equals { background-color: var(--accent-color); color: white; border-color: var(--accent-hover); grid-column: span 2; }
+    .calculator-buttons button.clear { background-color: var(--card-border); color: white; }
 
     /* Dashboards */
     .dashboard-section { margin-top: 40px; }
-    .dashboard-section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 20px;
-    }
-    .add-item-btn {
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 2px 4px 0px rgba(0,0,0,0.1);
-    }
+    .dashboard-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .add-item-btn { background-color: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; box-shadow: 2px 4px 0px rgba(0,0,0,0.1); }
     .add-item-btn:hover { background-color: var(--accent-hover); }
 
-    .cctv-preview {
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      background-color: var(--bg-color);
-      border-bottom: 3px dashed var(--card-border);
-      border-top: 3px dashed var(--card-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+    .cctv-preview { width: 100%; aspect-ratio: 16 / 9; background-color: var(--bg-color); border-bottom: 3px dashed var(--card-border); border-top: 3px dashed var(--card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
     .cctv-card-header { padding: 15px; display: flex; justify-content: space-between;}
     .cctv-meta { padding: 15px; font-size: 13px; font-weight: 600;}
 
@@ -611,39 +254,17 @@
     .countdown-days { font-size: 36px; color: var(--accent-color); font-weight: bold; margin: 10px 0; }
     .countdown-days.today { color: #e74c3c; }
 
-    .icon-btn {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: var(--card-border);
-    }
+    .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--card-border); }
     .icon-btn:hover { color: #e74c3c; }
 
     /* Dialogs */
-    dialog.dashboard-dialog {
-      padding: 0;
-      width: min(420px, 92vw);
-    }
+    dialog.dashboard-dialog { padding: 0; width: min(420px, 92vw); }
     dialog.dashboard-dialog::backdrop { background: rgba(0,0,0,0.4); }
-    .dashboard-dialog form {
-      display: flex;
-      flex-direction: column;
-      padding: 25px;
-      gap: 15px;
-    }
+    .dashboard-dialog form { display: flex; flex-direction: column; padding: 25px; gap: 15px; }
     .dashboard-dialog label { font-weight: 600; display: flex; flex-direction: column; gap: 5px; }
     .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
-    .dialog-actions button {
-      padding: 10px 20px;
-      border-radius: 12px;
-      border: none;
-      cursor: pointer;
-    }
-    .dialog-actions button[type="submit"] {
-      background-color: var(--accent-color);
-      color: white;
-    }
+    .dialog-actions button { padding: 10px 20px; border-radius: 12px; border: none; cursor: pointer; }
+    .dialog-actions button[type="submit"] { background-color: var(--accent-color); color: white; }
 
     /* Scrollbars */
     ::-webkit-scrollbar { width: 10px; }
@@ -651,14 +272,8 @@
     ::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 5px; }
 
     /* Translucency for wallpaper */
-    body.has-wallpaper #sidebar, body.has-wallpaper #rightSidebar {
-      background: rgba(174, 213, 129, 0.85);
-      backdrop-filter: blur(8px);
-    }
-    body.has-wallpaper .card, body.has-wallpaper #sidebarLocalTimeCard, body.has-wallpaper #weatherHeader, body.has-wallpaper .collapsible-section details {
-      background: rgba(241, 248, 233, 0.9);
-      backdrop-filter: blur(5px);
-    }
+    body.has-wallpaper #sidebar, body.has-wallpaper #rightSidebar { background: rgba(174, 213, 129, 0.85); backdrop-filter: blur(8px); }
+    body.has-wallpaper .card, body.has-wallpaper #sidebarLocalTimeCard, body.has-wallpaper #weatherHeader, body.has-wallpaper .collapsible-section details { background: rgba(241, 248, 233, 0.9); backdrop-filter: blur(5px); }
 
     @media (max-width: 850px) {
       body { flex-direction: column; }
@@ -721,29 +336,19 @@
                         <div class="toggle-group">
                             <label><input type="checkbox" class="toggle-timezone" data-id="custom1" checked /> Custom Timezone 1</label>
                             <div class="custom-tz-label">Select Timezone:</div>
-                            <select class="custom-timezone-select" data-custom-id="custom1">
-                                <option value="Asia/Manila" data-country="Philippines" selected>Asia/Manila (Philippines)</option>
-                                <option value="UTC" data-country="Universal">UTC (Universal)</option>
-                                <!-- Abbreviated for space, JS logic populates -->
-                            </select>
+                            <select class="custom-timezone-select" data-custom-id="custom1"></select>
                         </div>
 
                         <div class="toggle-group">
                             <label><input type="checkbox" class="toggle-timezone" data-id="custom2" checked /> Custom Timezone 2</label>
                             <div class="custom-tz-label">Select Timezone:</div>
-                            <select class="custom-timezone-select" data-custom-id="custom2">
-                                <option value="Asia/Tokyo" data-country="Japan" selected>Asia/Tokyo (Japan)</option>
-                                <option value="UTC" data-country="Universal">UTC (Universal)</option>
-                            </select>
+                            <select class="custom-timezone-select" data-custom-id="custom2"></select>
                         </div>
 
                         <div class="toggle-group">
                             <label><input type="checkbox" class="toggle-timezone" data-id="custom3" checked /> Custom Timezone 3</label>
                             <div class="custom-tz-label">Select Timezone:</div>
-                            <select class="custom-timezone-select" data-custom-id="custom3">
-                                <option value="Asia/Bangkok" data-country="Thailand" selected>Asia/Bangkok (Thailand)</option>
-                                <option value="UTC" data-country="Universal">UTC (Universal)</option>
-                            </select>
+                            <select class="custom-timezone-select" data-custom-id="custom3"></select>
                         </div>
                     </div>
                 </details>
@@ -937,7 +542,7 @@
         </details>
     </div>
 
-    <!-- NEW: Merged Fasting Tracker -->
+    <!-- Fasting Tracker -->
     <div id="fastingCollapsible" class="collapsible-section">
         <details open> <summary>🌿 Fasting Tracker</summary>
             <div class="collapsible-content" style="position: relative;">
@@ -969,51 +574,47 @@
             </div>
         </details>
     </div>
-
-  </div>
-
-  <div id="fixedDonateButtonContainer">
-      <details>
-          <summary>🍵 Donate</summary>
-          <div class="donate-content">
-              <p>Your donation helps us create free tools. Thank you for your support!</p>
-              <a href="#" target="_blank">Donate Now via PayPal</a>
-          </div>
-      </details>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
   <script>
-    // Time Utilities
-    function formatDateWithDay(date, timeZone) {
-      const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', timeZone };
-      return date.toLocaleDateString('en-US', options);
-    }
-
-    // Elements
+    // Elements & Global Variables
     const toggles = document.querySelectorAll('.toggle-timezone');
     const customSelects = document.querySelectorAll('.custom-timezone-select');
     const calendarTimezoneSelect = document.getElementById('calendarTimezoneSelect');
+    
     const weatherIconEl = document.getElementById('weatherIcon');
     const weatherTempEl = document.getElementById('weatherTemp');
     const weatherDescEl = document.getElementById('weatherDesc');
     const weatherLocationEl = document.getElementById('weatherLocation');
+    
     const todoInput = document.getElementById('todoInput');
     const todoList = document.getElementById('todoList');
     const MAX_TODO_ITEMS = 10; 
+    let todoItems = [];
+    
     const localTimeEl = document.getElementById('localTime');
     const localDateEl = document.getElementById('localDate');
     const localTimezoneNameEl = document.getElementById('localTimezoneName');
+    
     const dstReminderEl = document.getElementById('dstReminder');
     const holidayReminderEl = document.getElementById('holidayReminder');
     const holidayTextEl = document.getElementById('holidayText');
     const yearEndCountdownValueEl = document.getElementById('yearEndCountdownValue');
+    
     const rightSidebar = document.getElementById('rightSidebar');
     const rightSidebarToggleBtn = document.getElementById('rightSidebarToggleBtn');
     const notepad = document.getElementById('notepad');
+    
     const calculatorDisplay = document.getElementById('calculatorDisplay');
     const calculatorButtons = document.querySelector('.calculator-buttons');
+    
+    const cctvGrid = document.getElementById('cctvGrid');
+    const countdownGrid = document.getElementById('countdownGrid');
+    let cameras = [];
+    let countdowns = [];
 
+    // Timezone Data
     const timezoneMap = {
       pst: { tz: 'America/Los_Angeles', name: 'PST (Los Angeles)' },
       mst: { tz: 'America/Denver', name: 'MST (Denver)' },
@@ -1027,7 +628,11 @@
         { value: "Asia/Tokyo", country: "Japan", display: "Asia/Tokyo (Japan)" },
         { value: "Asia/Bangkok", country: "Thailand", display: "Asia/Bangkok (Thailand)" },
         { value: "Europe/London", country: "UK", display: "Europe/London (UK)" },
-        { value: "America/New_York", country: "USA", display: "America/New_York (USA)" }
+        { value: "America/New_York", country: "USA", display: "America/New_York (USA)" },
+        { value: "America/Chicago", country: "USA", display: "America/Chicago (USA)" },
+        { value: "America/Denver", country: "USA", display: "America/Denver (USA)" },
+        { value: "America/Los_Angeles", country: "USA", display: "America/Los_Angeles (USA)" },
+        { value: "Australia/Sydney", country: "Australia", display: "Australia/Sydney (Australia)" }
     ];
 
     const SETTINGS_KEY = 'userTimezoneSettings';
@@ -1035,7 +640,19 @@
     const CALENDAR_TZ_KEY = 'calendarTimezonePreference';
     const TODO_KEY = 'userTodoList';
     const NOTEPAD_KEY = 'userNotepadContent';
+    const CCTV_KEY = 'userCctvCameras';
+    const COUNTDOWN_KEY = 'userCountdowns';
 
+    // Core Utilities
+    function formatDateWithDay(date, timeZone) {
+      const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', timeZone };
+      return date.toLocaleDateString('en-US', options);
+    }
+    
+    function generateId() { return 'id-' + Date.now() + '-' + Math.random().toString(16).slice(2); }
+    function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;'); }
+
+    // Settings Management
     function saveSettings() {
       const settings = { toggles: {}, customTimezones: {} };
       toggles.forEach(t => settings.toggles[t.dataset.id] = t.checked);
@@ -1050,26 +667,19 @@
       try {
         const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_KEY));
         if (savedSettings) {
-          toggles.forEach(t => {
-            if (savedSettings.toggles.hasOwnProperty(t.dataset.id)) t.checked = savedSettings.toggles[t.dataset.id];
-          });
-          customSelects.forEach(s => {
-            if (savedSettings.customTimezones.hasOwnProperty(s.dataset.customId)) s.value = savedSettings.customTimezones[s.dataset.customId];
-          });
+          toggles.forEach(t => { if (savedSettings.toggles.hasOwnProperty(t.dataset.id)) t.checked = savedSettings.toggles[t.dataset.id]; });
+          customSelects.forEach(s => { if (savedSettings.customTimezones.hasOwnProperty(s.dataset.customId)) s.value = savedSettings.customTimezones[s.dataset.customId]; });
         }
-        calendarTimezoneSelect.value = localStorage.getItem(CALENDAR_TZ_KEY) || "UTC";
+        calendarTimezoneSelect.value = localStorage.getItem(CALENDAR_TZ_KEY) || Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
       } catch (e) {}
     }
 
     function loadBackground() {
       const savedBackground = localStorage.getItem(BACKGROUND_KEY);
-      if (savedBackground) {
-        document.body.style.backgroundImage = `url(${savedBackground})`;
-        document.body.classList.add('has-wallpaper');
-      }
+      if (savedBackground) { document.body.style.backgroundImage = `url(${savedBackground})`; document.body.classList.add('has-wallpaper'); }
     }
 
-    let todoItems = [];
+    // To-Do Logic
     function renderTodoList() {
         todoList.innerHTML = ''; 
         todoItems.forEach((item, index) => {
@@ -1086,9 +696,7 @@
     function addTodoItem(text) {
         if (text.trim() === '' || todoItems.length >= MAX_TODO_ITEMS) return;
         todoItems.push({ text: text.trim(), completed: false });
-        todoInput.value = '';
-        localStorage.setItem(TODO_KEY, JSON.stringify(todoItems));
-        renderTodoList();
+        todoInput.value = ''; localStorage.setItem(TODO_KEY, JSON.stringify(todoItems)); renderTodoList();
     }
 
     function toggleTodoItem(index) {
@@ -1102,10 +710,10 @@
 
     function deleteTodoItem(indexToDelete) {
         todoItems = todoItems.filter((_, idx) => idx !== indexToDelete);
-        localStorage.setItem(TODO_KEY, JSON.stringify(todoItems));
-        renderTodoList();
+        localStorage.setItem(TODO_KEY, JSON.stringify(todoItems)); renderTodoList();
     }
 
+    // Calculator Logic
     let currentInput = '0', operator = null, previousInput = '', resetDisplay = false;
     function updateCalculatorDisplay() { calculatorDisplay.value = currentInput; }
     function calculate() {
@@ -1116,60 +724,169 @@
         if (operator === '-') result = prev - current;
         if (operator === '*') result = prev * current;
         if (operator === '/') result = current === 0 ? 'Error' : prev / current;
-        currentInput = String(result);
-        operator = null; previousInput = ''; resetDisplay = true;
+        currentInput = String(result); operator = null; previousInput = ''; resetDisplay = true;
         updateCalculatorDisplay();
     }
 
-    function updateCardVisibility() {
-      toggles.forEach(t => {
-        const card = document.getElementById(t.dataset.id + 'Card');
-        if (card) card.style.display = t.checked ? 'block' : 'none';
-      });
+    // Calendar Logic
+    function renderSmallCalendar() {
+      const smallCal = document.getElementById('smallCalendar');
+      const selectedCalendarTZ = calendarTimezoneSelect.value;
+      
+      const now = new Date(); 
+      const options = { year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric', timeZone: selectedCalendarTZ };
+      const dateInSelectedTZ = new Date(now.toLocaleString('en-US', options));
+
+      const year = dateInSelectedTZ.getFullYear();
+      const month = dateInSelectedTZ.getMonth(); 
+      const currentDayInTZ = dateInSelectedTZ.getDate(); 
+
+      const firstDayOfMonthRaw = new Date(Date.UTC(year, month, 1));
+      const firstDayOfMonthInTZ = new Date(firstDayOfMonthRaw.toLocaleString('en-US', { weekday: 'long', year: 'numeric', month: 'numeric', day: 'numeric', timeZone: selectedCalendarTZ }));
+      const lastDayOfMonthRaw = new Date(Date.UTC(year, month + 1, 0)); 
+      const lastDayOfMonthInTZ = new Date(lastDayOfMonthRaw.toLocaleString('en-US', { year: 'numeric', month: 'numeric', day: 'numeric', timeZone: selectedCalendarTZ }));
+
+      const startDayOfWeek = firstDayOfMonthInTZ.getDay(); 
+      const totalDaysInMonth = lastDayOfMonthInTZ.getDate(); 
+      const monthName = dateInSelectedTZ.toLocaleString('en-US', { month: 'long', timeZone: selectedCalendarTZ });
+
+      let html = `<table aria-label="Calendar for ${monthName} ${year} in ${selectedCalendarTZ}"><caption>${monthName} ${year}</caption><thead><tr>`;
+      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => html += `<th scope="col">${d}</th>`);
+      html += '</tr></thead><tbody><tr>';
+
+      for (let i = 0; i < startDayOfWeek; i++) html += '<td></td>';
+      for (let dayNum = 1; dayNum <= totalDaysInMonth; dayNum++) {
+        if ((startDayOfWeek + dayNum - 1) % 7 === 0 && dayNum !== 1) html += '</tr><tr>';
+        const isToday = (dayNum === currentDayInTZ) ? 'today' : '';
+        html += `<td class="${isToday}">${dayNum}</td>`;
+      }
+      const remainingCells = (7 - ((startDayOfWeek + totalDaysInMonth) % 7)) % 7;
+      for (let i = 0; i < remainingCells; i++) html += '<td></td>';
+
+      html += '</tr></tbody></table>';
+      smallCal.innerHTML = html;
     }
 
-    // --- Fasting Tracker Logic ---
+    // Weather API
+    async function fetchLocalWeather() {
+        if (!navigator.geolocation) { weatherDescEl.textContent = 'Geolocation not supported.'; return; }
+        navigator.geolocation.getCurrentPosition(async (position) => {
+            const { latitude, longitude } = position.coords;
+            const tempUnitParam = navigator.language === 'en-US' ? '&temperature_unit=fahrenheit' : '';
+            try {
+                const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true${tempUnitParam}`);
+                const weatherData = await weatherRes.json();
+                if (weatherData && weatherData.current_weather) {
+                    const temp = Math.round(weatherData.current_weather.temperature);
+                    const isF = navigator.language === 'en-US';
+                    weatherTempEl.textContent = `${temp}°${isF ? 'F' : 'C'}`;
+                    weatherDescEl.textContent = 'Current conditions updated.';
+                }
+            } catch (e) { weatherDescEl.textContent = 'Could not load weather.'; }
+        }, () => {
+            weatherDescEl.textContent = 'Enable location access to see local weather.';
+        });
+    }
+
+    // Holiday & Year End Logic
+    function getUSAHolidays(year) {
+        const holidays = [];
+        holidays.push({ name: "New Year's Day", date: new Date(year, 0, 1) });
+        holidays.push({ name: "Independence Day", date: new Date(year, 6, 4) });
+        holidays.push({ name: "Veterans Day", date: new Date(year, 10, 11) });
+        holidays.push({ name: "Christmas Day", date: new Date(year, 11, 25) });
+
+        let mlkDay = new Date(year, 0, 1); while (mlkDay.getDay() !== 1 || mlkDay.getDate() < 15) mlkDay.setDate(mlkDay.getDate() + 1);
+        holidays.push({ name: "Martin Luther King, Jr. Day", date: mlkDay });
+
+        let presidentsDay = new Date(year, 1, 1); while (presidentsDay.getDay() !== 1 || presidentsDay.getDate() < 15) presidentsDay.setDate(presidentsDay.getDate() + 1);
+        holidays.push({ name: "Presidents' Day", date: presidentsDay });
+
+        let memorialDay = new Date(year, 5, 0); while (memorialDay.getDay() !== 1) memorialDay.setDate(memorialDay.getDate() - 1);
+        holidays.push({ name: "Memorial Day", date: memorialDay });
+
+        let laborDay = new Date(year, 8, 1); while (laborDay.getDay() !== 1) laborDay.setDate(laborDay.getDate() + 1);
+        holidays.push({ name: "Labor Day", date: laborDay });
+
+        let thanksgivingDay = new Date(year, 10, 1); while (thanksgivingDay.getDay() !== 4 || thanksgivingDay.getDate() < 22) thanksgivingDay.setDate(thanksgivingDay.getDate() + 1);
+        holidays.push({ name: "Thanksgiving Day", date: thanksgivingDay });
+
+        return holidays.sort((a, b) => a.date.getTime() - b.date.getTime());
+    }
+
+    let cachedHolidays = null, lastHolidayCheckYear = null;
+    function updateHolidayReminder() {
+        const now = new Date();
+        const currentYear = now.getFullYear();
+
+        if (!cachedHolidays || lastHolidayCheckYear !== currentYear) {
+            cachedHolidays = getUSAHolidays(currentYear).concat(getUSAHolidays(currentYear + 1));
+            lastHolidayCheckYear = currentYear;
+        }
+
+        const oneWeekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+        let holidayForThisWeek = null;
+
+        for (const holiday of cachedHolidays) {
+            const holidayStartOfDay = new Date(holiday.date.getFullYear(), holiday.date.getMonth(), holiday.date.getDate());
+            const nowStartOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            const oneWeekFromNowStartOfDay = new Date(oneWeekFromNow.getFullYear(), oneWeekFromNow.getMonth(), oneWeekFromNow.getDate());
+
+            if (holidayStartOfDay.getTime() >= nowStartOfDay.getTime() && holidayStartOfDay.getTime() <= oneWeekFromNowStartOfDay.getTime()) {
+                holidayForThisWeek = holiday; break;
+            }
+        }
+
+        if (holidayForThisWeek) {
+            const holidayDateFormatted = holidayForThisWeek.date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+            holidayTextEl.textContent = `${holidayForThisWeek.name} on ${holidayDateFormatted}`;
+            holidayReminderEl.style.display = 'block';
+        } else {
+            holidayTextEl.textContent = "No observed US holidays this week.";
+            holidayReminderEl.style.display = 'block';
+        }
+    }
+
+    function updateYearEndCountdown() {
+        const now = new Date();
+        const yearEnd = new Date(now.getFullYear() + 1, 0, 1, 0, 0, 0); 
+        const timeLeft = yearEnd - now; 
+
+        const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+        if (timeLeft <= 0) yearEndCountdownValueEl.textContent = "Happy New Year!";
+        else yearEndCountdownValueEl.textContent = `${days} days, ${hours} hours, ${minutes} minutes, ${seconds} seconds`;
+    }
+
+    // Fasting Tracker Logic
     let eatStartHour = parseInt(localStorage.getItem('ghibli_startHour')) || 10;
     let eatDuration = parseInt(localStorage.getItem('ghibli_eatDuration')) || 8;
     const fastStartInput = document.getElementById('fast-start-hour');
     const fastEatInput = document.getElementById('fast-eat-duration');
-    fastStartInput.value = eatStartHour;
-    fastEatInput.value = eatDuration;
+    if(fastStartInput && fastEatInput) { fastStartInput.value = eatStartHour; fastEatInput.value = eatDuration; }
 
-    document.getElementById('fastingSettingsBtn').addEventListener('click', () => {
+    document.getElementById('fastingSettingsBtn')?.addEventListener('click', () => {
         const panel = document.getElementById('fasting-settings-panel');
         const timers = document.getElementById('fasting-main-timers');
-        if (panel.style.display === 'block') {
-            panel.style.display = 'none';
-            timers.style.display = 'block';
-        } else {
-            panel.style.display = 'block';
-            timers.style.display = 'none';
-        }
+        if (panel.style.display === 'block') { panel.style.display = 'none'; timers.style.display = 'block'; } 
+        else { panel.style.display = 'block'; timers.style.display = 'none'; }
     });
 
-    document.getElementById('saveFastingBtn').addEventListener('click', () => {
+    document.getElementById('saveFastingBtn')?.addEventListener('click', () => {
         eatStartHour = parseInt(fastStartInput.value) || 10;
         eatDuration = parseInt(fastEatInput.value) || 8;
-        localStorage.setItem('ghibli_startHour', eatStartHour);
-        localStorage.setItem('ghibli_eatDuration', eatDuration);
-        document.getElementById('fastingSettingsBtn').click(); 
-        updateClocks(); // Force refresh
+        localStorage.setItem('ghibli_startHour', eatStartHour); localStorage.setItem('ghibli_eatDuration', eatDuration);
+        document.getElementById('fastingSettingsBtn').click(); updateClocks();
     });
 
-    function formatFastingTime(h, m, s) {
-        return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
+    function formatFastingTime(h, m, s) { return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`; }
 
     function updateFastingTimers(hours, minutes, seconds) {
         let eatEndHour = (eatStartHour + eatDuration) % 24;
-        let isEating = false;
-        
-        if (eatStartHour < eatEndHour) {
-            isEating = hours >= eatStartHour && hours < eatEndHour;
-        } else {
-            isEating = hours >= eatStartHour || hours < eatEndHour;
-        }
+        let isEating = (eatStartHour < eatEndHour) ? (hours >= eatStartHour && hours < eatEndHour) : (hours >= eatStartHour || hours < eatEndHour);
 
         const eatBox = document.getElementById('eat-box');
         const fastBox = document.getElementById('fast-box');
@@ -1177,26 +894,29 @@
         const fastTimeDisplay = document.getElementById('fast-time');
         const statusText = document.getElementById('fasting-status-text');
 
-        if (isEating) {
-            eatBox.classList.add('active');
-            fastBox.classList.remove('active');
-            statusText.innerText = "Enjoy your food! 🍱";
+        if (!eatBox) return;
 
-            let hLeft = (eatEndHour - 1 - hours + 24) % 24;
-            eatTimeDisplay.innerText = formatFastingTime(hLeft, 59 - minutes, 59 - seconds);
+        if (isEating) {
+            eatBox.classList.add('active'); fastBox.classList.remove('active');
+            statusText.innerText = "Enjoy your food! 🍱";
+            eatTimeDisplay.innerText = formatFastingTime((eatEndHour - 1 - hours + 24) % 24, 59 - minutes, 59 - seconds);
             fastTimeDisplay.innerText = formatFastingTime((24 - eatDuration), 0, 0); 
         } else {
-            fastBox.classList.add('active');
-            eatBox.classList.remove('active');
+            fastBox.classList.add('active'); eatBox.classList.remove('active');
             statusText.innerText = "Rest & Digest 🍵";
-
-            let hLeft = (eatStartHour - 1 - hours + 24) % 24;
-            fastTimeDisplay.innerText = formatFastingTime(hLeft, 59 - minutes, 59 - seconds);
+            fastTimeDisplay.innerText = formatFastingTime((eatStartHour - 1 - hours + 24) % 24, 59 - minutes, 59 - seconds);
             eatTimeDisplay.innerText = formatFastingTime(eatDuration, 0, 0); 
         }
     }
 
     // --- Master Clock Function ---
+    function updateCardVisibility() {
+      toggles.forEach(t => {
+        const card = document.getElementById(t.dataset.id + 'Card');
+        if (card) card.style.display = t.checked ? 'block' : 'none';
+      });
+    }
+
     function updateClocks() {
       const now = new Date();
       localTimeEl.textContent = now.toLocaleTimeString('en-US', { hour12: true });
@@ -1219,15 +939,16 @@
           document.getElementById(`${s.dataset.customId}CardTitle`).textContent = `Custom (${s.value.split('/').pop()})`;
           document.getElementById(`${s.dataset.customId}Time`).textContent = now.toLocaleTimeString('en-US', { timeZone: s.value, hour12: true });
           document.getElementById(`${s.dataset.customId}Date`).textContent = formatDateWithDay(now, s.value);
-        } else if (c) {
-          c.style.display = 'none';
-        }
+        } else if (c) { c.style.display = 'none'; }
       });
 
-      // Update Fasting Tracker
+      renderSmallCalendar();
+      updateHolidayReminder();
+      updateYearEndCountdown();
       updateFastingTimers(now.getHours(), now.getMinutes(), now.getSeconds());
     }
 
+    // Initialization
     document.addEventListener('DOMContentLoaded', () => {
       let optionsHtml = '';
       allTimezones.forEach(tz => optionsHtml += `<option value="${tz.value}">${tz.display}</option>`);
@@ -1236,25 +957,25 @@
 
       loadBackground();
       loadSettings();
+      
       const st = localStorage.getItem(TODO_KEY);
       if(st) { todoItems = JSON.parse(st); renderTodoList(); }
+      
       const sn = localStorage.getItem(NOTEPAD_KEY);
       if(sn) notepad.value = sn;
 
-      // Ensure collapsible fasting tracker remembers its open/close state
-      const FASTING_COLLAPSED_KEY = 'fastingCollapsibleState';
-      const fastingCollapsible = document.getElementById('fastingCollapsible').querySelector('details');
-      const savedFastingCollapsed = localStorage.getItem(FASTING_COLLAPSED_KEY);
-      if(savedFastingCollapsed) fastingCollapsible.open = savedFastingCollapsed === 'true';
-      fastingCollapsible.addEventListener('toggle', () => localStorage.setItem(FASTING_COLLAPSED_KEY, fastingCollapsible.open));
-
       updateCardVisibility();
+      fetchLocalWeather();
       updateClocks();
+      
       setInterval(updateClocks, 1000);
+      setInterval(fetchLocalWeather, 15 * 60 * 1000);
     });
 
+    // Event Listeners
     toggles.forEach(t => t.addEventListener('change', () => { updateCardVisibility(); saveSettings(); updateClocks(); }));
     customSelects.forEach(s => s.addEventListener('change', () => { saveSettings(); updateClocks(); }));
+    calendarTimezoneSelect.addEventListener('change', () => { saveSettings(); renderSmallCalendar(); });
     
     document.getElementById('bgUploadInput').addEventListener('change', (e) => {
       const file = e.target.files[0];
