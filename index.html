@@ -393,14 +393,6 @@
 <body>
 
   <div id="sidebar">
-    <!-- Local Time -->
-    <div id="sidebarLocalTimeCard">
-      <div class="sprite"><div class="eyes"><div class="eye"></div><div class="eye"></div></div></div>
-      <h2>🕰️ Local Time <br><span id="localTimezoneName" style="font-size:0.8em; color:var(--text-muted);"></span></h2>
-      <div class="time-display" id="localTime">--:--:--</div>
-      <div class="date-display" id="localDate">---</div>
-    </div>
-
     <!-- Manila Time -->
     <div id="sidebarManilaTimeCard">
       <h2>🇵🇭 Manila Time</h2>
@@ -523,6 +515,40 @@
   </div>
 
   <div id="mainContent">
+    
+    <!-- BIG LOCAL TIME (Collapsible Tablet Size) -->
+    <div class="collapsible-section dashboard-section" id="bigLocalTimeSection" style="margin-top: 0; margin-bottom: 20px;">
+      <details open>
+        <summary>🕰️ Local Time (Chicago)</summary>
+        <div class="collapsible-content" style="position: relative; text-align: center; padding: 40px 20px;">
+          <div class="sprite" style="top: 20px; right: 30px;"><div class="eyes"><div class="eye"></div><div class="eye"></div></div></div>
+          <h2 style="font-size: 28px; margin-top: 0; color: var(--text-main);">🕰️ Local Time <br><span id="localTimezoneName" style="font-size:16px; color:var(--text-muted); font-weight: 500;"></span></h2>
+          <div class="time-display" id="localTime" style="font-size: min(10vw, 80px); font-weight: bold; color: var(--accent-color); font-family: monospace; letter-spacing: 2px; margin: 10px 0;">--:--:--</div>
+          <div class="date-display" id="localDate" style="font-size: min(5vw, 28px); color: var(--text-main); font-weight: 600;">---</div>
+        </div>
+      </details>
+    </div>
+
+    <!-- BIG POMODORO (Collapsible Tablet Size) -->
+    <div id="pomodoroCollapsible" class="collapsible-section dashboard-section" style="margin-top: 0; margin-bottom: 30px;">
+      <details open>
+        <summary>🍅 Pomodoro Timer</summary>
+        <div class="collapsible-content" style="position: relative; text-align: center; padding: 40px 20px;">
+          <div id="pomodoro-status" style="font-size: 24px; font-weight: bold; margin-bottom: 15px; color: var(--text-main);">Ready to Focus!</div>
+          <div id="pomodoro-time" style="font-size: min(12vw, 96px); font-weight: bold; margin-bottom: 30px; color: var(--accent-color); font-family: monospace; letter-spacing: 4px;">25:00</div>
+          <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+            <button id="pomodoroStartBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px;">▶ Start</button>
+            <button id="pomodoroPauseBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; display: none;">⏸ Pause</button>
+            <button id="pomodoroRestartBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; display: none;">🔄 Restart</button>
+            <button id="pomodoroStopBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; background-color: var(--card-border); display: none;">⏹ Stop</button>
+          </div>
+          <div style="margin-top: 25px; font-size: 16px; font-weight: 600; color: var(--text-muted);">
+            <span id="pomodoro-mode-text">Current Mode: Focus (25m)</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
     <div class="grid">
       <div class="card" id="pstCard">
         <h2>PST (Los Angeles)</h2>
@@ -928,26 +954,6 @@
             </div>
         </details>
     </div>
-
-    <!-- Pomodoro Timer -->
-    <div id="pomodoroCollapsible" class="collapsible-section">
-        <details open> <summary>🍅 Pomodoro Timer</summary>
-            <div class="collapsible-content" style="position: relative; text-align: center;">
-                <div id="pomodoro-status" style="font-weight: bold; margin-bottom: 10px;">Ready to Focus!</div>
-                <div id="pomodoro-time" style="font-size: 36px; font-weight: bold; margin-bottom: 15px; color: var(--accent-color); font-family: monospace;">25:00</div>
-                <div style="display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                    <button id="pomodoroStartBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px;">▶ Start</button>
-                    <button id="pomodoroPauseBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px; display: none;">⏸ Pause</button>
-                    <button id="pomodoroRestartBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px; display: none;">🔄 Restart</button>
-                    <button id="pomodoroStopBtn" class="add-item-btn" style="padding: 6px 12px; font-size: 14px; background-color: var(--card-border); display: none;">⏹ Stop</button>
-                </div>
-                <div style="margin-top: 15px; font-size: 12px; color: var(--text-muted);">
-                    <span id="pomodoro-mode-text">Current Mode: Focus (25m)</span>
-                </div>
-            </div>
-        </details>
-    </div>
-
   </div>
 
   <!-- Google Identity Services -->
