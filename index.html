@@ -4,9 +4,23 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ghibli Dashboard</title>
+  
+  <!-- Fonts and Icons -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  <!-- Tailwind CSS CDN (with preflight disabled to protect dashboard styles) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      corePlugins: {
+        preflight: false,
+      }
+    }
+  </script>
+
   <style>
     /* Ghibli-inspired Light Moss Green Palette (Default) */
     :root {
@@ -19,6 +33,7 @@
       --shadow: #7cb342;
       --accent-color: #d98e5f;
       --accent-hover: #c1774a;
+      --success-color: #a7c957;
       
       --sidebar-width: 280px;
       --border-radius-lg: 24px;
@@ -36,6 +51,7 @@
       --shadow: #142112;
       --accent-color: #e59866;
       --accent-hover: #d37c46;
+      --success-color: #6a994e;
     }
 
     body {
@@ -46,8 +62,6 @@
       padding: 0;
       height: 100vh;
       overflow: hidden;
-      display: flex;
-      flex-direction: row;
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -106,8 +120,29 @@
       50% { transform: translateY(-10px); }
     }
 
+    /* App Views */
+    #dashboardApp {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      height: 100%;
+    }
+
+    #goalTrackerApp {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+      padding: 20px;
+      box-sizing: border-box;
+      background-image: radial-gradient(var(--card-bg) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
     /* Base Card Styling */
-    .card, #sidebarLocalTimeCard, #sidebarManilaTimeCard, #smallCalendar, #calculator, .countdown-card, .cctv-card, .dashboard-dialog {
+    .card, #sidebarLocalTimeCard, #sidebarManilaTimeCard, #smallCalendar, #calculator, .countdown-card, .dashboard-dialog {
       background-color: var(--box-bg);
       border: 3px solid var(--card-border);
       border-radius: var(--border-radius-lg);
@@ -137,47 +172,6 @@
     #sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-right: none; }
     #rightSidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-left: none; }
 
-    /* Toggle Buttons */
-    .toggle-wrapper {
-      position: relative;
-      width: 0;
-      height: 100%;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-    }
-
-    #leftSidebarToggleBtn, #rightSidebarToggleBtn {
-      position: absolute;
-      width: 40px;
-      height: 80px;
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border: 4px solid var(--card-border);
-      cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-
-    #leftSidebarToggleBtn {
-      left: 0;
-      border-left: none;
-      border-radius: 0 16px 16px 0;
-    }
-
-    #rightSidebarToggleBtn {
-      right: 0;
-      border-right: none;
-      border-radius: 16px 0 0 16px;
-    }
-
-    #leftSidebarToggleBtn:hover, #rightSidebarToggleBtn:hover {
-      background-color: var(--box-bg);
-    }
-
     #sidebar h3, #rightSidebar h3 { margin-top: 0; font-size: 18px; border-bottom: 3px dashed var(--card-border); padding-bottom: 10px; }
 
     .toggle-group { margin-bottom: 15px; background: var(--box-bg); padding: 10px; border-radius: var(--border-radius-sm); border: 2px dashed var(--card-border); }
@@ -186,6 +180,7 @@
     select, input[type="file"], input[type="text"], input[type="url"], input[type="number"], input[type="password"], input[type="date"], input[type="time"], textarea {
       font-family: 'Mali', cursive; border: 2px dashed var(--card-border); border-radius: 8px; padding: 8px; background-color: var(--box-bg); color: var(--text-main); width: 100%; box-sizing: border-box; font-weight: 600;
     }
+    input:focus, textarea:focus { outline: none; border-style: solid; box-shadow: 2px 2px 0px var(--shadow); }
 
     button { font-family: 'Mali', cursive; font-weight: bold; }
     #clearBackgroundBtn, .cancel-btn { margin-top: 8px; width: 100%; padding: 8px; background-color: var(--card-border); border: none; border-radius: 8px; color: white; cursor: pointer; }
@@ -307,12 +302,8 @@
     /* Dashboards */
     .dashboard-section { margin-top: 30px; }
     .dashboard-section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-    .add-item-btn { background-color: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; box-shadow: 2px 4px 0px rgba(0,0,0,0.1); }
-    .add-item-btn:hover { background-color: var(--accent-hover); }
-
-    .cctv-preview { width: 100%; aspect-ratio: 16 / 9; background-color: var(--box-bg); border-bottom: 3px dashed var(--card-border); border-top: 3px dashed var(--card-border); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-    .cctv-card-header { padding: 15px; display: flex; justify-content: space-between;}
-    .cctv-meta { padding: 15px; font-size: 13px; font-weight: 600;}
+    .add-item-btn { background-color: var(--accent-color); color: white; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; box-shadow: 2px 4px 0px rgba(0,0,0,0.1); transition: all 0.2s; }
+    .add-item-btn:hover { background-color: var(--accent-hover); transform: translateY(1px); box-shadow: 1px 2px 0px rgba(0,0,0,0.1); }
 
     /* Slow Bouncing Countdown Cubes */
     @keyframes slowCubeBounce {
@@ -340,7 +331,6 @@
       animation: slowCubeBounce 3.5s infinite ease-in-out;
     }
     
-    /* Staggered animation for cute floating effect */
     .countdown-card:nth-child(even) { animation-delay: 1.2s; }
     .countdown-card:nth-child(3n) { animation-delay: 2.4s; }
 
@@ -383,15 +373,15 @@
     .matrix-list { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; max-height: 120px; font-size: 12px; }
     .matrix-item { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; border-bottom: 1px dotted rgba(124,179,66,0.3); }
 
-    .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--card-border); }
-    .icon-btn:hover { color: #e74c3c; }
+    .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--card-border); padding: 4px 8px; border-radius: 8px; box-shadow: none; }
+    .icon-btn:hover { color: #e74c3c; background: var(--card-bg); }
 
     /* Bottom Toggle Buttons */
     .bottom-toggle {
       position: fixed;
-      bottom: 15px;
-      width: 36px;
-      height: 36px;
+      bottom: 20px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background-color: var(--box-bg);
       color: var(--text-main);
@@ -401,8 +391,8 @@
       align-items: center;
       justify-content: center;
       z-index: 1001;
-      font-size: 14px;
-      opacity: 0.4;
+      font-size: 16px;
+      opacity: 0.5;
       transition: all 0.3s ease;
       box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
     }
@@ -412,8 +402,24 @@
       background-color: var(--card-bg);
       border-style: solid;
     }
-    #leftSidebarToggleBtn { left: 15px; }
-    #rightSidebarToggleBtn { right: 15px; }
+    #leftSidebarToggleBtn { left: 20px; }
+    #rightSidebarToggleBtn { right: 20px; }
+    
+    #appSwitcherBtn {
+      left: 75px;
+      width: auto;
+      padding: 0 15px;
+      border-radius: 20px;
+      font-family: 'Mali', cursive;
+      font-weight: bold;
+      opacity: 1;
+      background-color: var(--accent-color);
+      color: white;
+      border: 3px solid var(--card-border);
+    }
+    #appSwitcherBtn:hover {
+      background-color: var(--accent-hover);
+    }
 
     /* Dialogs */
     dialog.dashboard-dialog { padding: 0; width: min(420px, 92vw); background-color: var(--box-bg); color: var(--text-main); border: 3px solid var(--card-border); border-radius: var(--border-radius-lg); }
@@ -424,6 +430,37 @@
     .dialog-actions button { padding: 10px 20px; border-radius: 12px; border: none; cursor: pointer; }
     .dialog-actions button[type="submit"] { background-color: var(--accent-color); color: white; }
 
+    /* Goal Tracker Specific Styles */
+    .gt-project-tabs-container { width: 100%; max-width: 1300px; display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; align-items: center; }
+    .gt-project-tab { background-color: var(--card-bg); color: var(--text-main); padding: 10px 20px; border: 3px solid var(--card-border); border-bottom: none; border-radius: 16px 16px 0 0; font-weight: bold; cursor: pointer; transition: all 0.2s ease; white-space: nowrap; box-shadow: 2px 0px 0px var(--shadow); display: flex; align-items: center; }
+    .gt-project-tab.active { background-color: var(--box-bg); padding-top: 14px; margin-top: -4px; }
+    .gt-tab-delete-btn { margin-left: 12px; color: #ef4444; opacity: 0.6; font-weight: 800; transition: opacity 0.2s; font-size: 1.1rem; }
+    .gt-tab-delete-btn:hover { opacity: 1; }
+    .gt-main-container { display: flex; flex-direction: column; gap: 24px; width: 100%; max-width: 1300px; }
+    @media (min-width: 992px) { .gt-main-container { flex-direction: row; } }
+    .gt-left-panel { flex: 2; }
+    .gt-right-panel { flex: 1; display: flex; flex-direction: column; gap: 24px; }
+    .gt-progress-container { background: var(--card-bg); border-radius: 16px; padding: 20px; margin-bottom: 24px; border: 2px dashed var(--card-border); text-align: center; }
+    .gt-progress-bar-bg { background: var(--box-bg); height: 24px; border-radius: 12px; width: 100%; margin-top: 10px; position: relative; overflow: hidden; border: 2px solid var(--card-border); }
+    .gt-progress-bar-fill { background: var(--success-color); height: 100%; width: 0%; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); position: relative; }
+    .gt-cute-runner { position: absolute; right: -10px; top: -4px; font-size: 20px; }
+    .gt-todo-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--box-bg); border: 2px dashed var(--card-border); border-radius: 12px; margin-bottom: 10px; transition: all 0.2s ease; }
+    .gt-todo-item.completed { opacity: 0.6; border-style: solid; background-color: var(--card-bg); }
+    .gt-todo-item.completed .gt-todo-text { text-decoration: line-through; }
+    .gt-todo-text { flex-grow: 1; font-size: 16px; font-weight: bold; margin: 0 12px; }
+    .gt-mindmap-board { display: flex; gap: 16px; overflow-x: auto; min-height: 400px; padding-bottom: 10px; }
+    .gt-mindmap-column { flex: 1; min-width: 250px; background: var(--bg-color); border-radius: 16px; padding: 16px; border: 3px solid var(--card-border); box-shadow: 2px 4px 0px var(--shadow); display: flex; flex-direction: column; gap: 12px; }
+    .gt-mindmap-column-title { font-weight: 800; text-align: center; margin-bottom: 10px; font-size: 1.1rem; }
+    .gt-mindmap-card { background: var(--box-bg); padding: 12px; border-radius: 12px; border: 2px dashed var(--card-border); cursor: grab; font-weight: bold; }
+    .gt-mindmap-card:active { cursor: grabbing; }
+    .gt-mindmap-card.status-done { text-decoration: line-through; opacity: 0.7; }
+    .gt-calendar-display { font-size: 1.3rem; font-weight: 800; }
+    .gt-clock-display { font-size: 2rem; font-weight: 800; color: var(--success-color); }
+    .gt-goal-circle { width: 50px; height: 50px; border-radius: 50%; background-color: var(--box-bg); border: 3px solid var(--card-border); display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 800; box-shadow: 2px 2px 0px var(--shadow); }
+    .gt-goal-circle.completed { background-color: var(--success-color); color: white; border-color: var(--success-color); }
+    .gt-view-btn { background-color: var(--card-bg); color: var(--text-main); font-family: 'Mali', cursive; font-weight: bold; border: none; padding: 10px 20px; border-radius: 12px; cursor: pointer; transition: all 0.2s; }
+    .gt-view-btn.active { background-color: var(--card-border); color: white; }
+
     /* Scrollbars */
     ::-webkit-scrollbar { width: 10px; }
     ::-webkit-scrollbar-track { background: var(--box-bg); }
@@ -432,11 +469,11 @@
     /* Translucency for wallpaper */
     body.has-wallpaper #sidebar, body.has-wallpaper #rightSidebar { background: rgba(45, 74, 38, 0.85); backdrop-filter: blur(8px); }
     body.has-wallpaper:not(.dark-theme) #sidebar, body.has-wallpaper:not(.dark-theme) #rightSidebar { background: rgba(174, 213, 129, 0.85); }
-    body.has-wallpaper .card, body.has-wallpaper #sidebarLocalTimeCard, body.has-wallpaper #sidebarManilaTimeCard, body.has-wallpaper .collapsible-section details { background: rgba(35, 56, 31, 0.9); backdrop-filter: blur(5px); }
-    body.has-wallpaper:not(.dark-theme) .card, body.has-wallpaper:not(.dark-theme) #sidebarLocalTimeCard, body.has-wallpaper:not(.dark-theme) #sidebarManilaTimeCard, body.has-wallpaper:not(.dark-theme) .collapsible-section details { background: rgba(241, 248, 233, 0.9); }
+    body.has-wallpaper .card, body.has-wallpaper #sidebarLocalTimeCard, body.has-wallpaper #sidebarManilaTimeCard, body.has-wallpaper .collapsible-section details, body.has-wallpaper .gt-mindmap-column { background: rgba(35, 56, 31, 0.9); backdrop-filter: blur(5px); }
+    body.has-wallpaper:not(.dark-theme) .card, body.has-wallpaper:not(.dark-theme) #sidebarLocalTimeCard, body.has-wallpaper:not(.dark-theme) #sidebarManilaTimeCard, body.has-wallpaper:not(.dark-theme) .collapsible-section details, body.has-wallpaper:not(.dark-theme) .gt-mindmap-column { background: rgba(241, 248, 233, 0.9); }
 
    @media (max-width: 850px) {
-    body { 
+    #dashboardApp { 
       flex-direction: column; 
       height: auto;
       overflow: auto;
@@ -449,573 +486,670 @@
     }
     .bottom-toggle { display: none; }
     #sidebar.collapsed, #rightSidebar.collapsed { width: 100%; padding: 20px; border-bottom: 4px solid var(--card-border); }
-    #mainContent {
-      height: auto;
-      overflow-y: visible;
-    }
+    #mainContent { height: auto; overflow-y: visible; }
     .matrix-grid { grid-template-columns: 1fr; }
   }
   </style>
 </head>
 <body>
 
-  <!-- Sidebars & Toggles -->
+  <!-- Floating Toggles -->
   <button id="leftSidebarToggleBtn" class="bottom-toggle" aria-label="Toggle Left Sidebar">◀</button>
   <button id="rightSidebarToggleBtn" class="bottom-toggle" aria-label="Toggle Right Sidebar">▶</button>
+  <button id="appSwitcherBtn" class="bottom-toggle" aria-label="Switch App"><i class="fas fa-exchange-alt mr-2"></i> Goal Tracker</button>
 
-  <div id="sidebar">
-    <!-- Manila Time -->
-    <div id="sidebarManilaTimeCard">
-      <h2>🇵🇭 Manila Time</h2>
-      <div class="time-display" id="manilaTime">--:--:--</div>
-      <div class="date-display" id="manilaDate">---</div>
-    </div>
+  <!-- =============================== -->
+  <!--        DASHBOARD VIEW           -->
+  <!-- =============================== -->
+  <div id="dashboardApp">
+    <div id="sidebar">
+      <!-- Manila Time -->
+      <div id="sidebarManilaTimeCard">
+        <h2>🇵🇭 Manila Time</h2>
+        <div class="time-display" id="manilaTime">--:--:--</div>
+        <div class="date-display" id="manilaDate">---</div>
+      </div>
 
-    <div id="dstReminder"></div>
+      <div id="dstReminder"></div>
 
-    <!-- Calendar with Google Integration -->
-    <div id="smallCalendarContainer">
-      <div class="custom-tz-label" style="font-weight:bold; margin-bottom:5px;">📅 Calendar:</div>
-      <select id="calendarTimezoneSelect" aria-label="Calendar timezone selector"></select>
-      <div id="smallCalendar" aria-label="Small monthly calendar"></div>
+      <!-- Calendar with Google Integration -->
+      <div id="smallCalendarContainer">
+        <div class="custom-tz-label" style="font-weight:bold; margin-bottom:5px;">📅 Calendar:</div>
+        <select id="calendarTimezoneSelect" aria-label="Calendar timezone selector"></select>
+        <div id="smallCalendar" aria-label="Small monthly calendar"></div>
 
-      <!-- Google Calendar Sync Button & List -->
-      <button id="gcalAuthBtn" class="add-item-btn" style="width: 100%; margin-top: 10px; padding: 8px 12px; font-size: 13px;">🔗 Connect Google Calendar</button>
-      <div id="gcalEventsBox" style="display: none;">
-        <div style="font-weight: bold; margin-bottom: 5px;">Activities & Events this Month:</div>
-        <div id="gcalEventsList">Loading events...</div>
+        <!-- Google Calendar Sync Button & List -->
+        <button id="gcalAuthBtn" class="add-item-btn" style="width: 100%; margin-top: 10px; padding: 8px 12px; font-size: 13px;">🔗 Connect Google Calendar</button>
+        <div id="gcalEventsBox" style="display: none;">
+          <div style="font-weight: bold; margin-bottom: 5px;">Activities & Events this Month:</div>
+          <div id="gcalEventsList">Loading events...</div>
+        </div>
+      </div>
+
+      <div id="holidayReminder" style="display: none;">
+        <h3>🎈 This Week's USA Holiday</h3>
+        <p id="holidayText">No observed US holidays this week.</p>
+      </div>
+
+      <div id="yearEndCountdownContainer">
+        <h3>✨ Time until Year End</h3>
+        <p id="yearEndCountdownValue">Calculating...</p>
+      </div>
+
+      <!-- Moon Phase Widget -->
+      <div id="moonPhaseContainer">
+        <h3>🌙 Moon Phase</h3>
+        <div id="moonPhaseDisplay">Calculating...</div>
+      </div>
+
+      <!-- 7-Day Weather Forecast -->
+      <div id="weeklyWeatherContainer">
+        <h3>⛅ 7-Day Forecast</h3>
+        <div id="weeklyForecastList">Fetching forecast...</div>
+      </div>
+
+      <div id="settingsSection" class="collapsible-section">
+          <details>
+              <summary>⚙️ Settings</summary>
+              <div class="collapsible-content">
+                  <!-- Theme Toggle -->
+                  <div class="toggle-group" style="margin-bottom: 12px;">
+                      <label><input type="checkbox" id="darkThemeToggle" style="width: auto; margin-right: 8px;" /> 🌙 Dark Ghibli Theme</label>
+                  </div>
+
+                  <!-- Google Calendar API Settings -->
+                  <details>
+                      <summary>🔑 Google Calendar Keys</summary>
+                      <div class="collapsible-content">
+                          <label style="font-size:12px; font-weight:bold;">Client ID:
+                            <input type="text" id="gcalClientId" placeholder="xxxx.apps.googleusercontent.com" style="margin-bottom:8px;" />
+                          </label>
+                          <label style="font-size:12px; font-weight:bold;">API Key:
+                            <input type="text" id="gcalApiKey" placeholder="AIzaSy..." style="margin-bottom:8px;" />
+                          </label>
+                          <button id="saveGcalKeysBtn" class="add-item-btn" style="width:100%; padding:6px; font-size:12px;">Save Keys</button>
+                      </div>
+                  </details>
+
+                  <details>
+                      <summary>🖼️ Background Settings</summary>
+                      <div class="collapsible-content">
+                          <div id="backgroundUploadGroup">
+                              <label for="bgUploadInput">Upload Wallpaper:</label>
+                              <input type="file" id="bgUploadInput" accept="image/*" />
+                              <button id="clearBackgroundBtn">Clear Background</button>
+                          </div>
+                      </div>
+                  </details>
+
+                  <details open> <summary>🌍 Timezone Settings</summary>
+                      <div class="collapsible-content timezone-content">
+                          <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="pst" checked /> PST (Los Angeles)</label></div>
+                          <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="mst" checked /> MST (Denver)</label></div>
+                          <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="cst" checked /> CST (Chicago)</label></div>
+                          <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="est" checked /> EST (New York)</label></div>
+
+                          <div class="toggle-group">
+                              <label><input type="checkbox" class="toggle-timezone" data-id="custom1" checked /> Custom Timezone 1</label>
+                              <div class="custom-tz-label">Select Timezone:</div>
+                              <select class="custom-timezone-select" data-custom-id="custom1"></select>
+                          </div>
+
+                          <div class="toggle-group">
+                              <label><input type="checkbox" class="toggle-timezone" data-id="custom2" checked /> Custom Timezone 2</label>
+                              <div class="custom-tz-label">Select Timezone:</div>
+                              <select class="custom-timezone-select" data-custom-id="custom2"></select>
+                          </div>
+
+                          <div class="toggle-group">
+                              <label><input type="checkbox" class="toggle-timezone" data-id="custom3" checked /> Custom Timezone 3</label>
+                              <div class="custom-tz-label">Select Timezone:</div>
+                              <select class="custom-timezone-select" data-custom-id="custom3"></select>
+                          </div>
+                      </div>
+                  </details>
+              </div>
+          </details>
+      </div>
+
+      <div id="aboutSection" class="collapsible-section">
+          <details>
+              <summary>🍄 About This Site</summary>
+              <div class="collapsible-content about-content">
+                  <p>Welcome to your magical Ghibli dashboard!</p>
+                  <p>Track your timezones, tasks, and countdowns surrounded by moss greens and friendly soot sprites. Everything saves securely to your browser.</p>
+                  <p>Developed by Kristine Green & Styled with ✨</p>
+              </div>
+          </details>
       </div>
     </div>
 
-    <div id="holidayReminder" style="display: none;">
-      <h3>🎈 This Week's USA Holiday</h3>
-      <p id="holidayText">No observed US holidays this week.</p>
-    </div>
-
-    <div id="yearEndCountdownContainer">
-      <h3>✨ Time until Year End</h3>
-      <p id="yearEndCountdownValue">Calculating...</p>
-    </div>
-
-    <!-- Moon Phase Widget -->
-    <div id="moonPhaseContainer">
-      <h3>🌙 Moon Phase</h3>
-      <div id="moonPhaseDisplay">Calculating...</div>
-    </div>
-
-    <!-- 7-Day Weather Forecast -->
-    <div id="weeklyWeatherContainer">
-      <h3>⛅ 7-Day Forecast</h3>
-      <div id="weeklyForecastList">Fetching forecast...</div>
-    </div>
-
-    <div id="settingsSection" class="collapsible-section">
-        <details>
-            <summary>⚙️ Settings</summary>
-            <div class="collapsible-content">
-                <!-- Theme Toggle -->
-                <div class="toggle-group" style="margin-bottom: 12px;">
-                    <label><input type="checkbox" id="darkThemeToggle" style="width: auto; margin-right: 8px;" /> 🌙 Dark Ghibli Theme</label>
-                </div>
-
-                <!-- Google Calendar API Settings -->
-                <details>
-                    <summary>🔑 Google Calendar Keys</summary>
-                    <div class="collapsible-content">
-                        <label style="font-size:12px; font-weight:bold;">Client ID:
-                          <input type="text" id="gcalClientId" placeholder="xxxx.apps.googleusercontent.com" style="margin-bottom:8px;" />
-                        </label>
-                        <label style="font-size:12px; font-weight:bold;">API Key:
-                          <input type="text" id="gcalApiKey" placeholder="AIzaSy..." style="margin-bottom:8px;" />
-                        </label>
-                        <button id="saveGcalKeysBtn" class="add-item-btn" style="width:100%; padding:6px; font-size:12px;">Save Keys</button>
-                    </div>
-                </details>
-
-                <details>
-                    <summary>🖼️ Background Settings</summary>
-                    <div class="collapsible-content">
-                        <div id="backgroundUploadGroup">
-                            <label for="bgUploadInput">Upload Wallpaper:</label>
-                            <input type="file" id="bgUploadInput" accept="image/*" />
-                            <button id="clearBackgroundBtn">Clear Background</button>
-                        </div>
-                    </div>
-                </details>
-
-                <details open> <summary>🌍 Timezone Settings</summary>
-                    <div class="collapsible-content timezone-content">
-                        <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="pst" checked /> PST (Los Angeles)</label></div>
-                        <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="mst" checked /> MST (Denver)</label></div>
-                        <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="cst" checked /> CST (Chicago)</label></div>
-                        <div class="toggle-group"><label><input type="checkbox" class="toggle-timezone" data-id="est" checked /> EST (New York)</label></div>
-
-                        <div class="toggle-group">
-                            <label><input type="checkbox" class="toggle-timezone" data-id="custom1" checked /> Custom Timezone 1</label>
-                            <div class="custom-tz-label">Select Timezone:</div>
-                            <select class="custom-timezone-select" data-custom-id="custom1"></select>
-                        </div>
-
-                        <div class="toggle-group">
-                            <label><input type="checkbox" class="toggle-timezone" data-id="custom2" checked /> Custom Timezone 2</label>
-                            <div class="custom-tz-label">Select Timezone:</div>
-                            <select class="custom-timezone-select" data-custom-id="custom2"></select>
-                        </div>
-
-                        <div class="toggle-group">
-                            <label><input type="checkbox" class="toggle-timezone" data-id="custom3" checked /> Custom Timezone 3</label>
-                            <div class="custom-tz-label">Select Timezone:</div>
-                            <select class="custom-timezone-select" data-custom-id="custom3"></select>
-                        </div>
-                    </div>
-                </details>
-            </div>
+    <div id="mainContent">
+      
+      <!-- BIG LOCAL TIME (Collapsible Tablet Size) -->
+      <div class="collapsible-section dashboard-section" id="bigLocalTimeSection" style="margin-top: 0; margin-bottom: 20px;">
+        <details open>
+          <summary>🕰️ Local Time (Chicago)</summary>
+          <div class="collapsible-content" style="position: relative; text-align: center; padding: 40px 20px;">
+            <div class="sprite" style="top: 20px; right: 30px;"><div class="eyes"><div class="eye"></div><div class="eye"></div></div></div>
+            <h2 style="font-size: 28px; margin-top: 0; color: var(--text-main);">🕰️ Local Time <br><span id="localTimezoneName" style="font-size:16px; color:var(--text-muted); font-weight: 500;"></span></h2>
+            <div class="time-display" id="localTime" style="font-size: min(10vw, 80px); font-weight: bold; color: var(--accent-color); font-family: monospace; letter-spacing: 2px; margin: 10px 0;">--:--:--</div>
+            <div class="date-display" id="localDate" style="font-size: min(5vw, 28px); color: var(--text-main); font-weight: 600;">---</div>
+          </div>
         </details>
+      </div>
+
+      <!-- BIG POMODORO (Collapsible Tablet Size) -->
+      <div id="pomodoroCollapsible" class="collapsible-section dashboard-section" style="margin-top: 0; margin-bottom: 30px;">
+        <details open>
+          <summary>🍅 Pomodoro Timer</summary>
+          <div class="collapsible-content" style="position: relative; text-align: center; padding: 40px 20px;">
+            <div id="pomodoro-status" style="font-size: 24px; font-weight: bold; margin-bottom: 15px; color: var(--text-main);">Ready to Focus!</div>
+            <div id="pomodoro-time" style="font-size: min(12vw, 96px); font-weight: bold; margin-bottom: 30px; color: var(--accent-color); font-family: monospace; letter-spacing: 4px;">25:00</div>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+              <button id="pomodoroStartBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px;">▶ Start</button>
+              <button id="pomodoroPauseBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; display: none;">⏸ Pause</button>
+              <button id="pomodoroRestartBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; display: none;">🔄 Restart</button>
+              <button id="pomodoroStopBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; background-color: var(--card-border); display: none;">⏹ Stop</button>
+            </div>
+            <div style="margin-top: 25px; font-size: 16px; font-weight: 600; color: var(--text-muted);">
+              <span id="pomodoro-mode-text">Current Mode: Focus (25m)</span>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <div class="grid" style="display: flex; flex-wrap: wrap; gap: 15px;">
+        <div class="card" id="pstCard" style="flex: 1 1 200px;">
+          <h2>PST (Los Angeles)</h2>
+          <div class="time-display" id="pstTime">--:--:--</div>
+          <div class="date-display" id="pstDate">---</div>
+        </div>
+
+        <div class="card" id="mstCard" style="flex: 1 1 200px;">
+          <h2>MST (Denver)</h2>
+          <div class="time-display" id="mstTime">--:--:--</div>
+          <div class="date-display" id="mstDate">---</div>
+        </div>
+
+        <div class="card" id="cstCard" style="flex: 1 1 200px;">
+          <h2>CST (Chicago)</h2>
+          <div class="time-display" id="cstTime">--:--:--</div>
+          <div class="date-display" id="cstDate">---</div>
+        </div>
+
+        <div class="card" id="estCard" style="flex: 1 1 200px;">
+          <h2>EST (New York)</h2>
+          <div class="time-display" id="estTime">--:--:--</div>
+          <div class="date-display" id="estDate">---</div>
+        </div>
+
+        <div class="card" id="custom1Card" style="flex: 1 1 200px;">
+          <h2 id="custom1CardTitle">Custom Timezone</h2>
+          <div class="time-display" id="custom1Time">--:--:--</div>
+          <div class="date-display" id="custom1Date">---</div>
+        </div>
+
+        <div class="card" id="custom2Card" style="flex: 1 1 200px;">
+          <h2 id="custom2CardTitle">Custom Timezone</h2>
+          <div class="time-display" id="custom2Time">--:--:--</div>
+          <div class="date-display" id="custom2Date">---</div>
+        </div>
+
+        <div class="card" id="custom3Card" style="flex: 1 1 200px;">
+          <h2 id="custom3CardTitle">Custom Timezone</h2>
+          <div class="time-display" id="custom3Time">--:--:--</div>
+          <div class="date-display" id="custom3Date">---</div>
+        </div>
+      </div>
+
+      <!-- COLLAPSIBLE COUNTDOWNS -->
+      <div class="collapsible-section dashboard-section" id="countdownCollapsibleSection">
+        <details open>
+          <summary>⏳ Countdowns</summary>
+          <div class="collapsible-content">
+            <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
+              <span style="font-size: 14px; color: var(--text-muted);">Track important upcoming dates</span>
+              <button class="add-item-btn" id="addCountdownBtn" type="button">+ Add Countdown</button>
+            </div>
+            <div id="countdownGrid"></div>
+          </div>
+        </details>
+      </div>
+
+      <!-- COLLAPSIBLE INCOME TRACKER -->
+      <div class="collapsible-section dashboard-section" id="incomeCollapsibleSection">
+        <details open>
+          <summary>💰 Income Tracker</summary>
+          <div class="collapsible-content">
+            <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
+              <span style="font-size: 14px; color: var(--text-muted);">Monitor your earnings and goals</span>
+              <button class="add-item-btn" id="setGoalBtn" type="button">⚙️ Set Goal</button>
+            </div>
+            
+            <div class="card" style="margin-bottom: 20px; padding: 25px;">
+              <div class="income-stats">
+                 <div class="income-stat-box">
+                     <div class="income-stat-label">Monthly Goal</div>
+                     <div class="income-stat-value goal">$<span id="incomeGoalDisplay">0.00</span></div>
+                 </div>
+                 <div class="income-stat-box">
+                     <div class="income-stat-label">Today's Income</div>
+                     <div class="income-stat-value">$<span id="incomeTodayDisplay">0.00</span></div>
+                 </div>
+                 <div class="income-stat-box">
+                     <div class="income-stat-label">Total This Month</div>
+                     <div class="income-stat-value">$<span id="incomeTotalDisplay">0.00</span></div>
+                 </div>
+                 <div class="income-stat-box">
+                     <div class="income-stat-label">Amount to Reach Goal</div>
+                     <div class="income-stat-value">$<span id="incomeRemainingDisplay">0.00</span></div>
+                 </div>
+              </div>
+              
+              <form id="addIncomeForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+                 <input type="number" id="incomeAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
+                 <input type="text" id="incomeSource" placeholder="Source (e.g., Vinted, Depop)" required style="width: 220px; margin: 0;">
+                 <input type="date" id="incomeDate" required style="width: 160px; margin: 0;">
+                 <button type="submit" class="add-item-btn" style="margin: 0;">Add Income</button>
+              </form>
+            </div>
+
+            <div class="collapsible-section" style="margin-top: 0;">
+               <details>
+                  <summary>📜 Income History</summary>
+                  <div class="collapsible-content">
+                     <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+                  </div>
+               </details>
+            </div>
+            
+            <div class="collapsible-section" style="margin-top: 10px;">
+               <details>
+                  <summary>📊 Monthly Overview (Income)</summary>
+                  <div class="collapsible-content">
+                     <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+                  </div>
+               </details>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- COLLAPSIBLE EXPENSES TRACKER -->
+      <div class="collapsible-section dashboard-section" id="expenseCollapsibleSection">
+        <details open>
+          <summary>💸 Expenses Tracker</summary>
+          <div class="collapsible-content">
+            <div class="card" style="margin-bottom: 20px; padding: 25px;">
+              <div class="income-stats">
+                 <div class="income-stat-box">
+                     <div class="income-stat-label">Today's Expenses</div>
+                     <div class="income-stat-value expense">$<span id="expenseTodayDisplay">0.00</span></div>
+                 </div>
+                 <div class="income-stat-box">
+                     <div class="income-stat-label">Total Spent This Month</div>
+                     <div class="income-stat-value expense">$<span id="expenseTotalDisplay">0.00</span></div>
+                 </div>
+              </div>
+              
+              <form id="addExpenseForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+                 <input type="number" id="expenseAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
+                 <input type="text" id="expenseFor" placeholder="What is it for? (e.g., Supplies)" required style="width: 220px; margin: 0;">
+                 <input type="date" id="expenseDate" required style="width: 160px; margin: 0;">
+                 <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Expense</button>
+              </form>
+            </div>
+
+            <div class="collapsible-section" style="margin-top: 0;">
+               <details>
+                  <summary>📜 Expense History</summary>
+                  <div class="collapsible-content">
+                     <div id="expenseHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+                  </div>
+               </details>
+            </div>
+            
+            <div class="collapsible-section" style="margin-top: 10px;">
+               <details>
+                  <summary>📊 Monthly Overview (Expenses)</summary>
+                  <div class="collapsible-content">
+                     <div id="monthlyExpenseOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+                  </div>
+               </details>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- COLLAPSIBLE DAILY HABIT & ROUTINE TRACKER -->
+      <div class="collapsible-section dashboard-section" id="habitCollapsibleSection">
+        <details open>
+          <summary>🌿 Daily Habit & Routine Tracker</summary>
+          <div class="collapsible-content">
+            <div class="card" style="margin-bottom: 20px; padding: 25px;">
+              <form id="addHabitForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+                 <input type="text" id="habitName" placeholder="Habit (e.g., Learn Mandarin)" required style="width: 200px; margin: 0;">
+                 <select id="habitCategory" required style="width: 120px; margin: 0;">
+                    <option value="General">General</option>
+                    <option value="Business">Business</option>
+                    <option value="Health">Health</option>
+                    <option value="House">House</option>
+                    <option value="Family">Family</option>
+                    <option value="School">School</option>
+                    <option value="E-commerce">E-commerce</option>
+                    <option value="Social Media">Social Media</option>
+                 </select>
+                 <input type="time" id="habitTime" required style="width: 130px; margin: 0;">
+                 <input type="number" id="habitDuration" placeholder="Mins" min="1" required style="width: 90px; margin: 0;">
+                 <button type="submit" class="add-item-btn" style="margin: 0;">Add Habit</button>
+              </form>
+            </div>
+            
+            <!-- Category Tabs -->
+            <div id="habitTabs" style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px dashed var(--card-border); padding-bottom: 12px; overflow-x: auto;">
+               <button class="habit-tab-btn active" data-category="All">All</button>
+               <button class="habit-tab-btn" data-category="School">School</button>
+               <button class="habit-tab-btn" data-category="E-commerce">E-commerce</button>
+               <button class="habit-tab-btn" data-category="Social Media">Social Media</button>
+               <button class="habit-tab-btn" data-category="Business">Business</button>
+               <button class="habit-tab-btn" data-category="Health">Health</button>
+               <button class="habit-tab-btn" data-category="House">House</button>
+               <button class="habit-tab-btn" data-category="Family">Family</button>
+               <button class="habit-tab-btn" data-category="General">General</button>
+            </div>
+
+            <div id="habitsContainer">
+               <!-- Habits with stopwatch and 12-hr sorted timeline render here -->
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- COLLAPSIBLE TIME-BLOCKING MATRIX (EISENHOWER MATRIX) -->
+      <div class="collapsible-section dashboard-section" id="matrixCollapsibleSection">
+        <details open>
+          <summary>🎯 Time-Blocking Matrix (Eisenhower)</summary>
+          <div class="collapsible-content">
+            <div class="card" style="margin-bottom: 20px; padding: 25px;">
+              <form id="addMatrixForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+                 <input type="text" id="matrixTask" placeholder="Task description..." required style="width: 260px; margin: 0;">
+                 <select id="matrixQuadrant" required style="width: 220px; margin: 0;">
+                    <option value="q1">🔥 Urgent & Important (Do First)</option>
+                    <option value="q2">📅 Important & Not Urgent (Schedule)</option>
+                    <option value="q3">⚡ Urgent & Not Important (Delegate)</option>
+                    <option value="q4">🗑️ Not Urgent & Not Important (Eliminate)</option>
+                 </select>
+                 <button type="submit" class="add-item-btn" style="margin: 0;">Add Task</button>
+              </form>
+            </div>
+
+            <div class="matrix-grid">
+               <div class="matrix-quadrant" style="border-color: #c1694f;">
+                  <div class="matrix-q-title" style="color: #c1694f;">🔥 Do First (Urgent & Important)</div>
+                  <ul class="matrix-list" id="matrixQ1List"></ul>
+               </div>
+               <div class="matrix-quadrant" style="border-color: #2980b9;">
+                  <div class="matrix-q-title" style="color: #2980b9;">📅 Schedule (Important & Not Urgent)</div>
+                  <ul class="matrix-list" id="matrixQ2List"></ul>
+               </div>
+               <div class="matrix-quadrant" style="border-color: #f39c12;">
+                  <div class="matrix-q-title" style="color: #f39c12;">⚡ Delegate (Urgent & Not Important)</div>
+                  <ul class="matrix-list" id="matrixQ3List"></ul>
+               </div>
+               <div class="matrix-quadrant" style="border-color: #7f8c8d;">
+                  <div class="matrix-q-title" style="color: #7f8c8d;">🗑️ Eliminate (Not Urgent & Not Important)</div>
+                  <ul class="matrix-list" id="matrixQ4List"></ul>
+               </div>
+            </div>
+          </div>
+        </details>
+      </div>
     </div>
 
-    <div id="aboutSection" class="collapsible-section">
-        <details>
-            <summary>🍄 About This Site</summary>
-            <div class="collapsible-content about-content">
-                <p>Welcome to your magical Ghibli dashboard!</p>
-                <p>Track your timezones, tasks, and countdowns surrounded by moss greens and friendly soot sprites. Everything saves securely to your browser.</p>
-                <p>Developed by Kristine Green & Styled with ✨</p>
-            </div>
-        </details>
+    <div id="rightSidebar">
+      <div id="notepadCollapsible" class="collapsible-section">
+          <details open> <summary>📝 Notepad</summary>
+              <div class="collapsible-content">
+                  <div id="notepadContainer">
+                      <textarea id="notepad" placeholder="Start typing your notes here..."></textarea>
+                  </div>
+              </div>
+          </details>
+      </div>
+      <!-- Goals Tracker -->
+      <div id="goalsCollapsible" class="collapsible-section">
+          <details open> <summary>🎯 Goals</summary>
+              <div class="collapsible-content">
+                  <div id="goalsContainer">
+                      <input type="text" id="goalInput" placeholder="Add a new goal..." maxlength="100" />
+                      
+                      <!-- Active Goals -->
+                      <ul id="activeGoalsList" class="task-list" style="margin-top: 10px;"></ul>
+                      
+                      <!-- Achieved Goals History (Collapsible) -->
+                      <details style="margin-top: 15px; border: 2px dashed var(--card-border); border-radius: 12px; background: var(--card-bg);">
+                          <summary style="padding: 8px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; border-bottom: 2px solid transparent;">🏆 Achieved Goals</summary>
+                          <div class="collapsible-content" style="padding: 10px; padding-top: 0;">
+                              <ul id="achievedGoalsList" class="task-list achieved-list"></ul>
+                          </div>
+                      </details>
+                  </div>
+              </div>
+          </details>
+      </div>
+
+      <div id="todoListCollapsible" class="collapsible-section">
+          <details open> <summary>🍙 To-Do List</summary>
+              <div class="collapsible-content">
+                  <div id="todoListContainer">
+                      <input type="text" id="todoInput" placeholder="Add a new task" maxlength="100" />
+                      <ul id="todoList"></ul>
+                  </div>
+              </div>
+          </details>
+      </div>
+
+      <div id="calculatorCollapsible" class="collapsible-section">
+          <details open> <summary>🧮 Calculator</summary>
+              <div class="collapsible-content">
+                  <div id="calculator">
+                      <input type="text" id="calculatorDisplay" value="0" readonly />
+                      <div class="calculator-buttons">
+                          <button class="clear" data-value="C">C</button>
+                          <button class="operator" data-value="/">/</button>
+                          <button class="operator" data-value="*">*</button>
+                          <button class="operator" data-value="-">-</button>
+                          <button data-value="7">7</button>
+                          <button data-value="8">8</button>
+                          <button data-value="9">9</button>
+                          <button class="operator" data-value="+">+</button>
+                          <button data-value="4">4</button>
+                          <button data-value="5">5</button>
+                          <button data-value="6">6</button>
+                          <button data-value="1">1</button>
+                          <button data-value="2">2</button>
+                          <button data-value="3">3</button>
+                          <button class="equals" data-value="=">=</button>
+                          <button data-value="0">0</button>
+                          <button data-value=".">.</button>
+                      </div>
+                  </div>
+              </div>
+          </details>
+      </div>
+
+      <!-- Fasting Tracker -->
+      <div id="fastingCollapsible" class="collapsible-section">
+          <details open> <summary>🌿 Fasting Tracker</summary>
+              <div class="collapsible-content" style="position: relative;">
+                  <button id="fastingSettingsBtn" aria-label="Fasting Settings">⚙️</button>
+                  <div id="fasting-status-text" style="font-weight: bold; text-align: center; margin-bottom: 10px; padding-right: 20px;">Checking clock...</div>
+
+                  <div id="fasting-settings-panel">
+                      <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600;">
+                          <label>Start Hour (0-23):</label>
+                          <input type="number" id="fast-start-hour" min="0" max="23" style="width: 60px; padding: 4px;">
+                      </div>
+                      <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600;">
+                          <label>Eat Hours (1-23):</label>
+                          <input type="number" id="fast-eat-duration" min="1" max="23" style="width: 60px; padding: 4px;">
+                      </div>
+                      <button type="button" id="saveFastingBtn" class="add-item-btn" style="width: 100%; padding: 6px; font-size: 14px;">Save Schedule</button>
+                  </div>
+
+                  <div id="fasting-main-timers">
+                      <div class="fasting-timer-box" id="eat-box">
+                          <div class="label">Time left to eat 🍙</div>
+                          <div class="time" id="eat-time">--:--:--</div>
+                      </div>
+                      <div class="fasting-timer-box" id="fast-box">
+                          <div class="label">Fasting remaining 🍵</div>
+                          <div class="time" id="fast-time">--:--:--</div>
+                      </div>
+                  </div>
+              </div>
+          </details>
+      </div>
     </div>
   </div>
 
-  <div id="mainContent">
-    
-    <!-- BIG LOCAL TIME (Collapsible Tablet Size) -->
-    <div class="collapsible-section dashboard-section" id="bigLocalTimeSection" style="margin-top: 0; margin-bottom: 20px;">
-      <details open>
-        <summary>🕰️ Local Time (Chicago)</summary>
-        <div class="collapsible-content" style="position: relative; text-align: center; padding: 40px 20px;">
-          <div class="sprite" style="top: 20px; right: 30px;"><div class="eyes"><div class="eye"></div><div class="eye"></div></div></div>
-          <h2 style="font-size: 28px; margin-top: 0; color: var(--text-main);">🕰️ Local Time <br><span id="localTimezoneName" style="font-size:16px; color:var(--text-muted); font-weight: 500;"></span></h2>
-          <div class="time-display" id="localTime" style="font-size: min(10vw, 80px); font-weight: bold; color: var(--accent-color); font-family: monospace; letter-spacing: 2px; margin: 10px 0;">--:--:--</div>
-          <div class="date-display" id="localDate" style="font-size: min(5vw, 28px); color: var(--text-main); font-weight: 600;">---</div>
-        </div>
-      </details>
+  <!-- =============================== -->
+  <!--        GOAL TRACKER VIEW        -->
+  <!-- =============================== -->
+  <div id="goalTrackerView">
+    <!-- Project Tabs -->
+    <div class="gt-project-tabs-container" id="gtProjectTabsContainer">
+        <!-- Tabs generated by JS -->
     </div>
 
-    <!-- BIG POMODORO (Collapsible Tablet Size) -->
-    <div id="pomodoroCollapsible" class="collapsible-section dashboard-section" style="margin-top: 0; margin-bottom: 30px;">
-      <details open>
-        <summary>🍅 Pomodoro Timer</summary>
-        <div class="collapsible-content" style="position: relative; text-align: center; padding: 40px 20px;">
-          <div id="pomodoro-status" style="font-size: 24px; font-weight: bold; margin-bottom: 15px; color: var(--text-main);">Ready to Focus!</div>
-          <div id="pomodoro-time" style="font-size: min(12vw, 96px); font-weight: bold; margin-bottom: 30px; color: var(--accent-color); font-family: monospace; letter-spacing: 4px;">25:00</div>
-          <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-            <button id="pomodoroStartBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px;">▶ Start</button>
-            <button id="pomodoroPauseBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; display: none;">⏸ Pause</button>
-            <button id="pomodoroRestartBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; display: none;">🔄 Restart</button>
-            <button id="pomodoroStopBtn" class="add-item-btn" style="padding: 12px 30px; font-size: 20px; border-radius: 16px; background-color: var(--card-border); display: none;">⏹ Stop</button>
-          </div>
-          <div style="margin-top: 25px; font-size: 16px; font-weight: 600; color: var(--text-muted);">
-            <span id="pomodoro-mode-text">Current Mode: Focus (25m)</span>
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <div class="grid" style="display: flex; flex-wrap: wrap; gap: 15px;">
-      <div class="card" id="pstCard" style="flex: 1 1 200px;">
-        <h2>PST (Los Angeles)</h2>
-        <div class="time-display" id="pstTime">--:--:--</div>
-        <div class="date-display" id="pstDate">---</div>
-      </div>
-
-      <div class="card" id="mstCard" style="flex: 1 1 200px;">
-        <h2>MST (Denver)</h2>
-        <div class="time-display" id="mstTime">--:--:--</div>
-        <div class="date-display" id="mstDate">---</div>
-      </div>
-
-      <div class="card" id="cstCard" style="flex: 1 1 200px;">
-        <h2>CST (Chicago)</h2>
-        <div class="time-display" id="cstTime">--:--:--</div>
-        <div class="date-display" id="cstDate">---</div>
-      </div>
-
-      <div class="card" id="estCard" style="flex: 1 1 200px;">
-        <h2>EST (New York)</h2>
-        <div class="time-display" id="estTime">--:--:--</div>
-        <div class="date-display" id="estDate">---</div>
-      </div>
-
-      <div class="card" id="custom1Card" style="flex: 1 1 200px;">
-        <h2 id="custom1CardTitle">Custom Timezone</h2>
-        <div class="time-display" id="custom1Time">--:--:--</div>
-        <div class="date-display" id="custom1Date">---</div>
-      </div>
-
-      <div class="card" id="custom2Card" style="flex: 1 1 200px;">
-        <h2 id="custom2CardTitle">Custom Timezone</h2>
-        <div class="time-display" id="custom2Time">--:--:--</div>
-        <div class="date-display" id="custom2Date">---</div>
-      </div>
-
-      <div class="card" id="custom3Card" style="flex: 1 1 200px;">
-        <h2 id="custom3CardTitle">Custom Timezone</h2>
-        <div class="time-display" id="custom3Time">--:--:--</div>
-        <div class="date-display" id="custom3Date">---</div>
-      </div>
-    </div>
-
-    <!-- COLLAPSIBLE CCTV CAMERAS -->
-    <div class="collapsible-section dashboard-section" id="cctvCollapsibleSection">
-      <details open>
-        <summary>📷 CCTV Cameras</summary>
-        <div class="collapsible-content">
-          <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
-            <span style="font-size: 14px; color: var(--text-muted);">Manage your security camera feeds</span>
-            <button class="add-item-btn" id="addCameraBtn" type="button">+ Add Camera</button>
-          </div>
-          <div class="grid" id="cctvGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;"></div>
-        </div>
-      </details>
-    </div>
-
-    <!-- COLLAPSIBLE COUNTDOWNS -->
-    <div class="collapsible-section dashboard-section" id="countdownCollapsibleSection">
-      <details open>
-        <summary>⏳ Countdowns</summary>
-        <div class="collapsible-content">
-          <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
-            <span style="font-size: 14px; color: var(--text-muted);">Track important upcoming dates</span>
-            <button class="add-item-btn" id="addCountdownBtn" type="button">+ Add Countdown</button>
-          </div>
-          <div id="countdownGrid"></div>
-        </div>
-      </details>
-    </div>
-
-    <!-- COLLAPSIBLE INCOME TRACKER -->
-    <div class="collapsible-section dashboard-section" id="incomeCollapsibleSection">
-      <details open>
-        <summary>💰 Income Tracker</summary>
-        <div class="collapsible-content">
-          <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
-            <span style="font-size: 14px; color: var(--text-muted);">Monitor your earnings and goals</span>
-            <button class="add-item-btn" id="setGoalBtn" type="button">⚙️ Set Goal</button>
-          </div>
-          
-          <div class="card" style="margin-bottom: 20px; padding: 25px;">
-            <div class="income-stats">
-               <div class="income-stat-box">
-                   <div class="income-stat-label">Monthly Goal</div>
-                   <div class="income-stat-value goal">$<span id="incomeGoalDisplay">0.00</span></div>
-               </div>
-               <div class="income-stat-box">
-                   <div class="income-stat-label">Today's Income</div>
-                   <div class="income-stat-value">$<span id="incomeTodayDisplay">0.00</span></div>
-               </div>
-               <div class="income-stat-box">
-                   <div class="income-stat-label">Total This Month</div>
-                   <div class="income-stat-value">$<span id="incomeTotalDisplay">0.00</span></div>
-               </div>
-               <div class="income-stat-box">
-                   <div class="income-stat-label">Amount to Reach Goal</div>
-                   <div class="income-stat-value">$<span id="incomeRemainingDisplay">0.00</span></div>
-               </div>
-            </div>
+    <div class="gt-main-container">
+        <!-- Left Panel: Active Project View -->
+        <div class="gt-left-panel card">
             
-            <form id="addIncomeForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-               <input type="number" id="incomeAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
-               <input type="text" id="incomeSource" placeholder="Source (e.g., Vinted, Depop)" required style="width: 220px; margin: 0;">
-               <input type="date" id="incomeDate" required style="width: 160px; margin: 0;">
-               <button type="submit" class="add-item-btn" style="margin: 0;">Add Income</button>
-            </form>
-          </div>
-
-          <div class="collapsible-section" style="margin-top: 0;">
-             <details>
-                <summary>📜 Income History</summary>
-                <div class="collapsible-content">
-                   <div id="incomeHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+            <!-- Motivation Progress Chart -->
+            <div class="gt-progress-container">
+                <h3 class="text-xl font-bold mb-1" id="gtMotivationText">Let's grow this project! 🌱</h3>
+                <p class="text-sm font-bold opacity-80 mb-2" id="gtProgressPercentage">0% Completed</p>
+                <div class="gt-progress-bar-bg">
+                    <div class="gt-progress-bar-fill" id="gtCuteProgressBar">
+                        <span class="gt-cute-runner" id="gtCuteProgressIcon">🍃</span>
+                    </div>
                 </div>
-             </details>
-          </div>
-          
-          <div class="collapsible-section" style="margin-top: 10px;">
-             <details>
-                <summary>📊 Monthly Overview (Income)</summary>
-                <div class="collapsible-content">
-                   <div id="monthlyOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
-                </div>
-             </details>
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <!-- COLLAPSIBLE EXPENSES TRACKER -->
-    <div class="collapsible-section dashboard-section" id="expenseCollapsibleSection">
-      <details open>
-        <summary>💸 Expenses Tracker</summary>
-        <div class="collapsible-content">
-          <div class="card" style="margin-bottom: 20px; padding: 25px;">
-            <div class="income-stats">
-               <div class="income-stat-box">
-                   <div class="income-stat-label">Today's Expenses</div>
-                   <div class="income-stat-value expense">$<span id="expenseTodayDisplay">0.00</span></div>
-               </div>
-               <div class="income-stat-box">
-                   <div class="income-stat-label">Total Spent This Month</div>
-                   <div class="income-stat-value expense">$<span id="expenseTotalDisplay">0.00</span></div>
-               </div>
             </div>
+
+            <!-- Project Meta Information (Accordion) -->
+            <details>
+                <summary><i class="fas fa-leaf mr-2"></i> Project Details & Mission</summary>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
+                    <div>
+                        <label class="block text-sm font-bold mb-1 ml-1 opacity-80">Project Name</label>
+                        <input type="text" id="gtProjName" placeholder="e.g. My Ghibli Masterpiece" onchange="gtSaveActiveProjectMeta()">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-bold mb-1 ml-1 opacity-80">Deadline</label>
+                        <input type="date" id="gtProjDeadline" onchange="gtSaveActiveProjectMeta()">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold mb-1 ml-1 opacity-80">Purpose & Goal</label>
+                        <textarea id="gtProjPurpose" placeholder="What is the core purpose and goal of this project?" onchange="gtSaveActiveProjectMeta()"></textarea>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-bold mb-1 ml-1 opacity-80">Mission / Notes</label>
+                        <textarea id="gtProjMission" placeholder="Free space for mission statement or notes..." onchange="gtSaveActiveProjectMeta()"></textarea>
+                    </div>
+                </div>
+            </details>
+
+            <!-- View Toggles -->
+            <div class="flex gap-4 mb-6 mt-4">
+                <button class="gt-view-btn active" id="gtBtnListView" onclick="gtSwitchView('list')"><i class="fas fa-list mr-2"></i> To-Do List</button>
+                <button class="gt-view-btn" id="gtBtnBoardView" onclick="gtSwitchView('board')"><i class="fas fa-sitemap mr-2"></i> Mindmap</button>
+            </div>
+
+            <!-- List View -->
+            <div id="gtListView">
+                <div class="flex gap-4 mb-6 flex-col sm:flex-row">
+                    <input type="text" id="gtTodoInput" placeholder="Add a new task for this project..." class="flex-grow">
+                    <button id="gtAddTodoButton" class="sm:w-auto mt-4 sm:mt-0 add-item-btn">Add Task</button>
+                </div>
+                <ul id="gtTodoList" class="divide-y divide-transparent">
+                    <!-- Project To-do items will be dynamically added here -->
+                </ul>
+                <p id="gtNoTodosMessage" class="text-center mt-4 opacity-70 font-bold hidden">No tasks yet! Add one above.</p>
+            </div>
+
+            <!-- Mindmap Board View (Kanban style) -->
+            <div id="gtBoardView" class="hidden">
+                <p class="text-sm font-bold opacity-80 mb-4 text-center">Drag and drop your tasks to organize your workflow.</p>
+                <div class="gt-mindmap-board">
+                    <div class="gt-mindmap-column" id="col-todo" ondrop="gtDrop(event, 'todo')" ondragover="gtAllowDrop(event)">
+                        <div class="gt-mindmap-column-title">📌 To Do</div>
+                    </div>
+                    <div class="gt-mindmap-column" id="col-doing" ondrop="gtDrop(event, 'doing')" ondragover="gtAllowDrop(event)">
+                        <div class="gt-mindmap-column-title">⏳ Doing</div>
+                    </div>
+                    <div class="gt-mindmap-column" id="col-done" ondrop="gtDrop(event, 'done')" ondragover="gtAllowDrop(event)">
+                        <div class="gt-mindmap-column-title">✅ Done</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel -->
+        <div class="gt-right-panel">
             
-            <form id="addExpenseForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-               <input type="number" id="expenseAmount" placeholder="Amount ($)" step="0.01" required style="width: 140px; margin: 0;">
-               <input type="text" id="expenseFor" placeholder="What is it for? (e.g., Supplies)" required style="width: 220px; margin: 0;">
-               <input type="date" id="expenseDate" required style="width: 160px; margin: 0;">
-               <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Expense</button>
-            </form>
-          </div>
+            <!-- Calendar and Clocks -->
+            <div class="card text-center">
+                <h2 class="text-xl font-bold mb-4"><i class="fas fa-clock mr-2"></i> Today's Journey</h2>
+                <div id="gtCurrentDateDisplay" class="gt-calendar-display mb-4"></div>
+                <div class="flex flex-col gap-4 mt-4">
+                    <div class="border-t-2 border-dashed border-[#8da47e] pt-4">
+                        <div id="gtCentralTime" class="gt-clock-display"></div>
+                        <div class="text-sm font-bold opacity-80">Central Time (CT)</div>
+                    </div>
+                    <div class="border-t-2 border-dashed border-[#8da47e] pt-4">
+                        <div id="gtPhilippinesTime" class="gt-clock-display"></div>
+                        <div class="text-sm font-bold opacity-80">Philippines Time (PHT)</div>
+                    </div>
+                </div>
+            </div>
 
-          <div class="collapsible-section" style="margin-top: 0;">
-             <details>
-                <summary>📜 Expense History</summary>
-                <div class="collapsible-content">
-                   <div id="expenseHistoryList" style="max-height: 250px; overflow-y: auto;"></div>
+            <!-- Daily Routine Tasks -->
+            <div class="card">
+                <h2 class="text-xl font-bold mb-4"><i class="fas fa-sun mr-2"></i> Daily Routine <span id="gtDailyDateDisplay" class="text-sm opacity-80 block mt-1"></span></h2>
+                <div class="flex gap-2 mb-4 flex-col sm:flex-row">
+                    <input type="text" id="gtDailyTodoInput" placeholder="Add habit..." class="flex-grow text-sm">
+                    <button id="gtAddDailyTodoButton" class="add-item-btn" style="padding: 6px 15px;">Add</button>
                 </div>
-             </details>
-          </div>
-          
-          <div class="collapsible-section" style="margin-top: 10px;">
-             <details>
-                <summary>📊 Monthly Overview (Expenses)</summary>
-                <div class="collapsible-content">
-                   <div id="monthlyExpenseOverviewList" style="max-height: 200px; overflow-y: auto;"></div>
+                <ul id="gtDailyTodoList">
+                    <!-- Daily To-do items -->
+                </ul>
+            </div>
+
+            <!-- Weekly Goal Tracker -->
+            <div class="card text-center">
+                <h2 class="text-xl font-bold mb-2"><i class="fas fa-star mr-2"></i> Weekly Milestone</h2>
+                <p class="text-sm font-bold opacity-80 mb-4">Complete 3 tasks this week!</p>
+                <div class="flex justify-center gap-4 mt-4">
+                    <div id="gtGoalCircle1" class="gt-goal-circle">1</div>
+                    <div id="gtGoalCircle2" class="gt-goal-circle">2</div>
+                    <div id="gtGoalCircle3" class="gt-goal-circle">3</div>
                 </div>
-             </details>
-          </div>
+                <p id="gtGoalStatus" class="font-bold mt-6 text-[#6a994e]">Progress: 0/3</p>
+                <p id="gtGoalMetMessage" class="font-bold text-xl mt-2 hidden">Goal Achieved! 🎉</p>
+            </div>
+
+            <!-- Monthly Reminder -->
+            <div class="card text-center">
+                <h2 class="text-xl font-bold mb-2"><i class="fas fa-calendar-alt mr-2"></i> Monthly Timer</h2>
+                <p id="gtDaysLeft" class="text-2xl font-extrabold" style="color: var(--accent-color);">-- Days Left</p>
+            </div>
         </div>
-      </details>
-    </div>
-
-    <!-- COLLAPSIBLE DAILY HABIT & ROUTINE TRACKER -->
-    <div class="collapsible-section dashboard-section" id="habitCollapsibleSection">
-      <details open>
-        <summary>🌿 Daily Habit & Routine Tracker</summary>
-        <div class="collapsible-content">
-          <div class="card" style="margin-bottom: 20px; padding: 25px;">
-            <form id="addHabitForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-               <input type="text" id="habitName" placeholder="Habit (e.g., Learn Mandarin)" required style="width: 200px; margin: 0;">
-               <select id="habitCategory" required style="width: 120px; margin: 0;">
-                  <option value="General">General</option>
-                  <option value="Business">Business</option>
-                  <option value="Health">Health</option>
-                  <option value="House">House</option>
-                  <option value="Family">Family</option>
-                  <option value="School">School</option>
-                  <option value="E-commerce">E-commerce</option>
-                  <option value="Social Media">Social Media</option>
-               </select>
-               <input type="time" id="habitTime" required style="width: 130px; margin: 0;">
-               <input type="number" id="habitDuration" placeholder="Mins" min="1" required style="width: 90px; margin: 0;">
-               <button type="submit" class="add-item-btn" style="margin: 0;">Add Habit</button>
-            </form>
-          </div>
-          
-          <!-- Category Tabs -->
-          <div id="habitTabs" style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px dashed var(--card-border); padding-bottom: 12px; overflow-x: auto;">
-             <button class="habit-tab-btn active" data-category="All">All</button>
-             <button class="habit-tab-btn" data-category="School">School</button>
-             <button class="habit-tab-btn" data-category="E-commerce">E-commerce</button>
-             <button class="habit-tab-btn" data-category="Social Media">Social Media</button>
-             <button class="habit-tab-btn" data-category="Business">Business</button>
-             <button class="habit-tab-btn" data-category="Health">Health</button>
-             <button class="habit-tab-btn" data-category="House">House</button>
-             <button class="habit-tab-btn" data-category="Family">Family</button>
-             <button class="habit-tab-btn" data-category="General">General</button>
-          </div>
-
-          <div id="habitsContainer">
-             <!-- Habits with stopwatch and 12-hr sorted timeline render here -->
-          </div>
-        </div>
-      </details>
-    </div>
-
-    <!-- COLLAPSIBLE TIME-BLOCKING MATRIX (EISENHOWER MATRIX) -->
-    <div class="collapsible-section dashboard-section" id="matrixCollapsibleSection">
-      <details open>
-        <summary>🎯 Time-Blocking Matrix (Eisenhower)</summary>
-        <div class="collapsible-content">
-          <div class="card" style="margin-bottom: 20px; padding: 25px;">
-            <form id="addMatrixForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-               <input type="text" id="matrixTask" placeholder="Task description..." required style="width: 260px; margin: 0;">
-               <select id="matrixQuadrant" required style="width: 220px; margin: 0;">
-                  <option value="q1">🔥 Urgent & Important (Do First)</option>
-                  <option value="q2">📅 Important & Not Urgent (Schedule)</option>
-                  <option value="q3">⚡ Urgent & Not Important (Delegate)</option>
-                  <option value="q4">🗑️ Not Urgent & Not Important (Eliminate)</option>
-               </select>
-               <button type="submit" class="add-item-btn" style="margin: 0;">Add Task</button>
-            </form>
-          </div>
-
-          <div class="matrix-grid">
-             <div class="matrix-quadrant" style="border-color: #c1694f;">
-                <div class="matrix-q-title" style="color: #c1694f;">🔥 Do First (Urgent & Important)</div>
-                <ul class="matrix-list" id="matrixQ1List"></ul>
-             </div>
-             <div class="matrix-quadrant" style="border-color: #2980b9;">
-                <div class="matrix-q-title" style="color: #2980b9;">📅 Schedule (Important & Not Urgent)</div>
-                <ul class="matrix-list" id="matrixQ2List"></ul>
-             </div>
-             <div class="matrix-quadrant" style="border-color: #f39c12;">
-                <div class="matrix-q-title" style="color: #f39c12;">⚡ Delegate (Urgent & Not Important)</div>
-                <ul class="matrix-list" id="matrixQ3List"></ul>
-             </div>
-             <div class="matrix-quadrant" style="border-color: #7f8c8d;">
-                <div class="matrix-q-title" style="color: #7f8c8d;">🗑️ Eliminate (Not Urgent & Not Important)</div>
-                <ul class="matrix-list" id="matrixQ4List"></ul>
-             </div>
-          </div>
-        </div>
-      </details>
-    </div>
-
-  </div>
-
-  <div id="rightSidebar">
-    <div id="notepadCollapsible" class="collapsible-section">
-        <details open> <summary>📝 Notepad</summary>
-            <div class="collapsible-content">
-                <div id="notepadContainer">
-                    <textarea id="notepad" placeholder="Start typing your notes here..."></textarea>
-                </div>
-            </div>
-        </details>
-    </div>
-    <!-- Goals Tracker -->
-    <div id="goalsCollapsible" class="collapsible-section">
-        <details open> <summary>🎯 Goals</summary>
-            <div class="collapsible-content">
-                <div id="goalsContainer">
-                    <input type="text" id="goalInput" placeholder="Add a new goal..." maxlength="100" />
-                    
-                    <!-- Active Goals -->
-                    <ul id="activeGoalsList" class="task-list" style="margin-top: 10px;"></ul>
-                    
-                    <!-- Achieved Goals History (Collapsible) -->
-                    <details style="margin-top: 15px; border: 2px dashed var(--card-border); border-radius: 12px; background: var(--card-bg);">
-                        <summary style="padding: 8px 12px; font-size: 13px; font-weight: bold; cursor: pointer; border: none; border-bottom: 2px solid transparent;">🏆 Achieved Goals</summary>
-                        <div class="collapsible-content" style="padding: 10px; padding-top: 0;">
-                            <ul id="achievedGoalsList" class="task-list achieved-list"></ul>
-                        </div>
-                    </details>
-                </div>
-            </div>
-        </details>
-    </div>
-
-    <div id="todoListCollapsible" class="collapsible-section">
-        <details open> <summary>🍙 To-Do List</summary>
-            <div class="collapsible-content">
-                <div id="todoListContainer">
-                    <input type="text" id="todoInput" placeholder="Add a new task" maxlength="100" />
-                    <ul id="todoList"></ul>
-                </div>
-            </div>
-        </details>
-    </div>
-
-    <div id="calculatorCollapsible" class="collapsible-section">
-        <details open> <summary>🧮 Calculator</summary>
-            <div class="collapsible-content">
-                <div id="calculator">
-                    <input type="text" id="calculatorDisplay" value="0" readonly />
-                    <div class="calculator-buttons">
-                        <button class="clear" data-value="C">C</button>
-                        <button class="operator" data-value="/">/</button>
-                        <button class="operator" data-value="*">*</button>
-                        <button class="operator" data-value="-">-</button>
-                        <button data-value="7">7</button>
-                        <button data-value="8">8</button>
-                        <button data-value="9">9</button>
-                        <button class="operator" data-value="+">+</button>
-                        <button data-value="4">4</button>
-                        <button data-value="5">5</button>
-                        <button data-value="6">6</button>
-                        <button data-value="1">1</button>
-                        <button data-value="2">2</button>
-                        <button data-value="3">3</button>
-                        <button class="equals" data-value="=">=</button>
-                        <button data-value="0">0</button>
-                        <button data-value=".">.</button>
-                    </div>
-                </div>
-            </div>
-        </details>
-    </div>
-
-    <!-- Fasting Tracker -->
-    <div id="fastingCollapsible" class="collapsible-section">
-        <details open> <summary>🌿 Fasting Tracker</summary>
-            <div class="collapsible-content" style="position: relative;">
-                <button id="fastingSettingsBtn" aria-label="Fasting Settings">⚙️</button>
-                <div id="fasting-status-text" style="font-weight: bold; text-align: center; margin-bottom: 10px; padding-right: 20px;">Checking clock...</div>
-
-                <div id="fasting-settings-panel">
-                    <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600;">
-                        <label>Start Hour (0-23):</label>
-                        <input type="number" id="fast-start-hour" min="0" max="23" style="width: 60px; padding: 4px;">
-                    </div>
-                    <div style="margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-weight: 600;">
-                        <label>Eat Hours (1-23):</label>
-                        <input type="number" id="fast-eat-duration" min="1" max="23" style="width: 60px; padding: 4px;">
-                    </div>
-                    <button type="button" id="saveFastingBtn" class="add-item-btn" style="width: 100%; padding: 6px; font-size: 14px;">Save Schedule</button>
-                </div>
-
-                <div id="fasting-main-timers">
-                    <div class="fasting-timer-box" id="eat-box">
-                        <div class="label">Time left to eat 🍙</div>
-                        <div class="time" id="eat-time">--:--:--</div>
-                    </div>
-                    <div class="fasting-timer-box" id="fast-box">
-                        <div class="label">Fasting remaining 🍵</div>
-                        <div class="time" id="fast-time">--:--:--</div>
-                    </div>
-                </div>
-            </div>
-        </details>
     </div>
   </div>
 
   <!-- Dialogs -->
-  <dialog class="dashboard-dialog" id="cameraDialog">
-    <form id="cameraForm">
-      <h3>Add CCTV Camera</h3>
-      <label>Camera Name* <input type="text" id="camName" maxlength="60" required placeholder="e.g. Front Door" /></label>
-      <label>Feed Type* 
-        <select id="camFeedType">
-          <option value="image">Snapshot / MJPEG Image URL</option>
-          <option value="video">Video Stream URL</option>
-          <option value="iframe">Web Viewer (IFrame URL)</option>
-        </select>
-      </label>
-      <label>Feed URL* <input type="url" id="camUrl" required /></label>
-      <div style="display:flex; gap:10px;">
-        <label style="flex:1;">IP Address <input type="text" id="camIp" /></label>
-        <label style="flex:1;">Port <input type="number" id="camPort" /></label>
-      </div>
-      <label>Username <input type="text" id="camUsername" /></label>
-      <label>Password <input type="password" id="camPassword" /></label>
-      <label>Notes <input type="text" id="camNotes" /></label>
-      <div class="dialog-actions">
-        <button type="button" class="cancel-btn" id="cancelCameraBtn">Cancel</button>
-        <button type="submit">Save Camera</button>
-      </div>
-    </form>
-  </dialog>
-
   <dialog class="dashboard-dialog" id="countdownDialog">
     <form id="countdownForm">
       <h3>Add Countdown</h3>
@@ -1077,9 +1211,8 @@
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js"></script>
   <script>
-    // Elements & Global Variables
+    // Elements & Global Variables (Dashboard)
     const toggles = document.querySelectorAll('.toggle-timezone');
     const customSelects = document.querySelectorAll('.custom-timezone-select');
     const calendarTimezoneSelect = document.getElementById('calendarTimezoneSelect');
@@ -1093,6 +1226,26 @@
     const rightSidebarToggleBtn = document.getElementById('rightSidebarToggleBtn');
     const sidebar = document.getElementById('sidebar');
     const rightSidebar = document.getElementById('rightSidebar');
+
+    // App Switcher
+    const appSwitcherBtn = document.getElementById('appSwitcherBtn');
+    const dashboardApp = document.getElementById('dashboardApp');
+    const goalTrackerApp = document.getElementById('goalTrackerView');
+    let currentApp = 'dashboard';
+
+    appSwitcherBtn.addEventListener('click', () => {
+      if (currentApp === 'dashboard') {
+        dashboardApp.style.display = 'none';
+        goalTrackerApp.style.display = 'flex';
+        currentApp = 'goalTracker';
+        appSwitcherBtn.innerHTML = '<i class="fas fa-home mr-2"></i> Dashboard';
+      } else {
+        dashboardApp.style.display = 'flex';
+        goalTrackerApp.style.display = 'none';
+        currentApp = 'dashboard';
+        appSwitcherBtn.innerHTML = '<i class="fas fa-exchange-alt mr-2"></i> Goal Tracker';
+      }
+    });
 
     // Goals Variables
     const goalInput = document.getElementById('goalInput');
@@ -1123,17 +1276,10 @@
     const calculatorDisplay = document.getElementById('calculatorDisplay');
     const calculatorButtons = document.querySelector('.calculator-buttons');
     
-    const cctvGrid = document.getElementById('cctvGrid');
     const countdownGrid = document.getElementById('countdownGrid');
-    let cameras = [];
     let countdowns = [];
 
-    // Dialog & Button Elements for CCTV and Countdowns
-    const addCameraBtn = document.getElementById('addCameraBtn');
-    const cameraDialog = document.getElementById('cameraDialog');
-    const cancelCameraBtn = document.getElementById('cancelCameraBtn');
-    const cameraForm = document.getElementById('cameraForm');
-
+    // Dialog & Button Elements for Countdowns
     const addCountdownBtn = document.getElementById('addCountdownBtn');
     const countdownDialog = document.getElementById('countdownDialog');
     const cancelCountdownBtn = document.getElementById('cancelCountdownBtn');
@@ -1252,7 +1398,6 @@
     const NOTEPAD_KEY = 'userNotepadContent';
     const GCAL_CLIENT_KEY = 'userGcalClientId';
     const GCAL_API_KEY = 'userGcalApiKey';
-    const CAMERAS_KEY = 'userCctvCameras';
     const COUNTDOWNS_KEY = 'userCountdownsList';
 
     // Toggle Sidebars Setup
@@ -1319,40 +1464,6 @@
       if (savedBackground) { document.body.style.backgroundImage = `url(${savedBackground})`; document.body.classList.add('has-wallpaper'); }
     }
 
-    // CCTV & Countdowns Logic
-    function loadCameras() {
-        try {
-            const saved = localStorage.getItem(CAMERAS_KEY);
-            if (saved) cameras = JSON.parse(saved);
-        } catch(e) { cameras = []; }
-        renderCameras();
-    }
-    function saveCameras() { localStorage.setItem(CAMERAS_KEY, JSON.stringify(cameras)); }
-    function renderCameras() {
-        if (!cctvGrid) return;
-        if (cameras.length === 0) {
-            cctvGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 15px;">No CCTV cameras added yet. Click "+ Add Camera" above.</div>';
-            return;
-        }
-        cctvGrid.innerHTML = cameras.map(cam => `
-            <div class="card cctv-card" style="padding:0; overflow:hidden;">
-                <div class="cctv-card-header">
-                    <strong>${escapeHtml(cam.name)}</strong>
-                    <button type="button" class="icon-btn delete-cam-btn" data-id="${cam.id}">✕</button>
-                </div>
-                <div class="cctv-preview">
-                    ${cam.feedType === 'iframe' ? `<iframe src="${escapeHtml(cam.url)}" style="width:100%; height:100%; border:none;"></iframe>` :
-                      cam.feedType === 'video' ? `<video src="${escapeHtml(cam.url)}" autoplay muted loop style="width:100%; height:100%; object-fit:cover;"></video>` :
-                      `<img src="${escapeHtml(cam.url)}" alt="${escapeHtml(cam.name)}" style="width:100%; height:100%; object-fit:cover;" />`}
-                </div>
-                <div class="cctv-meta">
-                    <div>📍 ${cam.ip ? cam.ip + (cam.port ? ':' + cam.port : '') : 'Direct Feed'}</div>
-                    ${cam.notes ? `<div>📝 ${escapeHtml(cam.notes)}</div>` : ''}
-                </div>
-            </div>
-        `).join('');
-    }
-
     function loadCountdowns() {
         try {
             const saved = localStorage.getItem(COUNTDOWNS_KEY);
@@ -1374,9 +1485,9 @@
             const targetDate = new Date(cd.date + 'T00:00:00');
             const diffTime = targetDate - now;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            let dayText = `${diffDays} days left`;
+            let dayText = `${diffDays}d`;
             let isTodayClass = '';
-            if (diffDays === 0) { dayText = "Today! 🎉"; isTodayClass = 'today'; }
+            if (diffDays === 0) { dayText = "Today!"; isTodayClass = 'today'; }
             else if (diffDays < 0) { dayText = "Passed"; }
 
             return `
@@ -1544,7 +1655,7 @@
             if (goal) {
                 goal.completed = e.target.checked;
                 saveGoals();
-                setTimeout(renderGoals, 300); // 300ms delay so user can see it get checked off before it hides
+                setTimeout(renderGoals, 300);
             }
         }
     });
@@ -2364,14 +2475,7 @@
             
             // If we are viewing a specific category and just changed the item out of it, update view
             if (currentHabitCategory !== 'All' && currentHabitCategory !== habits[habitIndex].category) {
-                // Optionally switch to the new tab:
-                /* 
-                document.querySelectorAll('.habit-tab-btn').forEach(b => {
-                    b.classList.remove('active');
-                    if(b.dataset.category === habits[habitIndex].category) b.classList.add('active');
-                });
-                currentHabitCategory = habits[habitIndex].category;
-                */
+                // Keep the current view but habit will disappear
             }
 
             renderHabits();
@@ -2545,9 +2649,358 @@
       updateHolidayReminder();
       updateYearEndCountdown();
       updateFastingTimers(now.getHours(), now.getMinutes(), now.getSeconds());
+      
+      // Goal Tracker specific clocks update
+      if (currentApp === 'goalTracker') {
+          gtUpdateClocks();
+      }
     }
 
-    // Initialization
+    // --- Goal Tracker Specific JS Functions ---
+    let projects = JSON.parse(localStorage.getItem('ghibli_projects')) || [
+        { id: 'default_1', name: 'My First Project', deadline: '', purpose: '', goal: '', mission: '', todos: [] }
+    ];
+    let activeProjectId = localStorage.getItem('ghibli_active_project') || projects[0].id;
+
+    const gtTabsContainer = document.getElementById('gtProjectTabsContainer');
+    const gtProjNameInput = document.getElementById('gtProjName');
+    const gtProjDeadlineInput = document.getElementById('gtProjDeadline');
+    const gtProjPurposeInput = document.getElementById('gtProjPurpose');
+    const gtProjMissionInput = document.getElementById('gtProjMission');
+    
+    const gtTodoInput = document.getElementById('gtTodoInput');
+    const gtAddTodoButton = document.getElementById('gtAddTodoButton');
+    const gtTodoList = document.getElementById('gtTodoList');
+    const gtNoTodosMessage = document.getElementById('gtNoTodosMessage');
+
+    const gtBtnListView = document.getElementById('gtBtnListView');
+    const gtBtnBoardView = document.getElementById('gtBtnBoardView');
+    const gtListView = document.getElementById('gtListView');
+    const gtBoardView = document.getElementById('gtBoardView');
+
+    function gtSaveProjects() {
+        localStorage.setItem('ghibli_projects', JSON.stringify(projects));
+        localStorage.setItem('ghibli_active_project', activeProjectId);
+        gtUpdateProgressChart();
+    }
+
+    function gtGetActiveProject() {
+        return projects.find(p => p.id === activeProjectId) || projects[0];
+    }
+
+    function gtDeleteProjectFolder(id) {
+        if (projects.length <= 1) {
+            alert("You cannot delete your only project. Please create a new one first.");
+            return;
+        }
+        if (confirm("Are you sure you want to delete this project and all its tasks?")) {
+            projects = projects.filter(p => p.id !== id);
+            if (activeProjectId === id) {
+                activeProjectId = projects[0].id;
+            }
+            gtSaveProjects();
+            gtRenderTabs();
+            gtLoadActiveProject();
+        }
+    }
+
+    function gtRenderTabs() {
+        gtTabsContainer.innerHTML = '';
+        projects.forEach(proj => {
+            const tab = document.createElement('div');
+            tab.className = `gt-project-tab ${proj.id === activeProjectId ? 'active' : ''}`;
+            
+            const titleSpan = document.createElement('span');
+            titleSpan.textContent = proj.name || 'Untitled Project';
+            titleSpan.onclick = () => {
+                activeProjectId = proj.id;
+                gtSaveProjects();
+                gtRenderTabs();
+                gtLoadActiveProject();
+            };
+            tab.appendChild(titleSpan);
+
+            if (projects.length > 1) {
+                const delBtn = document.createElement('i');
+                delBtn.className = 'fas fa-times gt-tab-delete-btn';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    gtDeleteProjectFolder(proj.id);
+                };
+                tab.appendChild(delBtn);
+            }
+            gtTabsContainer.appendChild(tab);
+        });
+
+        const addBtn = document.createElement('button');
+        addBtn.className = 'add-item-btn';
+        addBtn.innerHTML = '<i class="fas fa-plus"></i> New Project';
+        addBtn.onclick = gtAddNewProject;
+        gtTabsContainer.appendChild(addBtn);
+    }
+
+    function gtAddNewProject() {
+        const newId = 'proj_' + Date.now();
+        projects.push({ id: newId, name: 'New Project', deadline: '', purpose: '', goal: '', mission: '', todos: [] });
+        activeProjectId = newId;
+        gtSaveProjects();
+        gtRenderTabs();
+        gtLoadActiveProject();
+    }
+
+    function gtLoadActiveProject() {
+        const proj = gtGetActiveProject();
+        gtProjNameInput.value = proj.name;
+        gtProjDeadlineInput.value = proj.deadline;
+        gtProjPurposeInput.value = proj.purpose;
+        gtProjMissionInput.value = proj.mission;
+        gtRenderProjectTodos();
+        gtRenderMindmapBoard();
+        gtUpdateProgressChart();
+    }
+
+    window.gtSaveActiveProjectMeta = function() {
+        const proj = gtGetActiveProject();
+        proj.name = gtProjNameInput.value;
+        proj.deadline = gtProjDeadlineInput.value;
+        proj.purpose = gtProjPurposeInput.value;
+        proj.mission = gtProjMissionInput.value;
+        gtSaveProjects();
+        gtRenderTabs();
+    }
+
+    function gtAddProjectTodo(text) {
+        const proj = gtGetActiveProject();
+        proj.todos.push({
+            id: 'gt_todo_' + Date.now(),
+            text: text,
+            status: 'todo',
+            completed: false,
+            timestamp: Date.now()
+        });
+        gtSaveProjects();
+        gtRenderProjectTodos();
+        gtRenderMindmapBoard();
+    }
+
+    function gtUpdateProjectTodo(id, updates) {
+        const proj = gtGetActiveProject();
+        const todo = proj.todos.find(t => t.id === id);
+        if (todo) {
+            Object.assign(todo, updates);
+            if (updates.completed !== undefined) {
+                todo.status = updates.completed ? 'done' : (todo.status === 'done' ? 'todo' : todo.status);
+                if(updates.completed) gtIncrementWeeklyGoal();
+            }
+            if (updates.status !== undefined) {
+                todo.completed = (updates.status === 'done');
+            }
+            gtSaveProjects();
+            gtRenderProjectTodos();
+            gtRenderMindmapBoard();
+        }
+    }
+
+    function gtDeleteProjectTodo(id) {
+        const proj = gtGetActiveProject();
+        proj.todos = proj.todos.filter(t => t.id !== id);
+        gtSaveProjects();
+        gtRenderProjectTodos();
+        gtRenderMindmapBoard();
+    }
+
+    function gtRenderProjectTodos() {
+        const proj = gtGetActiveProject();
+        gtTodoList.innerHTML = '';
+        if (proj.todos.length === 0) {
+            gtNoTodosMessage.classList.remove('hidden');
+        } else {
+            gtNoTodosMessage.classList.add('hidden');
+            const sorted = [...proj.todos].sort((a, b) => b.timestamp - a.timestamp);
+            sorted.forEach(todo => {
+                const li = document.createElement('li');
+                li.className = `gt-todo-item ${todo.completed ? 'completed' : ''}`;
+                
+                const cb = document.createElement('input');
+                cb.type = 'checkbox';
+                cb.checked = todo.completed;
+                cb.style.width = '24px'; cb.style.height = '24px'; cb.style.cursor = 'pointer'; cb.style.accentColor = 'var(--success-color)'; cb.style.border = 'none';
+                cb.onchange = (e) => gtUpdateProjectTodo(todo.id, { completed: e.target.checked });
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = 'gt-todo-text';
+                textSpan.textContent = todo.text;
+                
+                const delBtn = document.createElement('button');
+                delBtn.className = 'icon-btn';
+                delBtn.innerHTML = '<i class="fas fa-trash text-red-400"></i>';
+                delBtn.onclick = () => gtDeleteProjectTodo(todo.id);
+
+                li.append(cb, textSpan, delBtn);
+                gtTodoList.appendChild(li);
+            });
+        }
+    }
+
+    function gtRenderMindmapBoard() {
+        const proj = gtGetActiveProject();
+        document.getElementById('col-todo').innerHTML = '<div class="gt-mindmap-column-title">📌 To Do</div>';
+        document.getElementById('col-doing').innerHTML = '<div class="gt-mindmap-column-title">⏳ Doing</div>';
+        document.getElementById('col-done').innerHTML = '<div class="gt-mindmap-column-title">✅ Done</div>';
+
+        proj.todos.forEach(todo => {
+            const card = document.createElement('div');
+            card.className = `gt-mindmap-card status-${todo.status}`;
+            card.draggable = true;
+            card.dataset.id = todo.id;
+            card.textContent = todo.text;
+            card.ondragstart = (e) => { e.dataTransfer.setData('text/plain', todo.id); };
+            
+            const col = document.getElementById(`col-${todo.status}`) || document.getElementById('col-todo');
+            col.appendChild(card);
+        });
+    }
+
+    window.gtAllowDrop = function(ev) { ev.preventDefault(); }
+    window.gtDrop = function(ev, newStatus) {
+        ev.preventDefault();
+        const todoId = ev.dataTransfer.getData('text/plain');
+        gtUpdateProjectTodo(todoId, { status: newStatus });
+    }
+
+    window.gtSwitchView = function(view) {
+        if (view === 'list') {
+            gtBtnListView.classList.add('active');
+            gtBtnBoardView.classList.remove('active');
+            gtListView.classList.remove('hidden');
+            gtBoardView.classList.add('hidden');
+        } else {
+            gtBtnBoardView.classList.add('active');
+            gtBtnListView.classList.remove('active');
+            gtBoardView.classList.remove('hidden');
+            gtListView.classList.add('hidden');
+        }
+    }
+
+    function gtUpdateProgressChart() {
+        const proj = gtGetActiveProject();
+        const total = proj.todos.length;
+        const completed = proj.todos.filter(t => t.completed).length;
+        let percent = total === 0 ? 0 : Math.round((completed / total) * 100);
+        
+        document.getElementById('gtCuteProgressBar').style.width = `${percent}%`;
+        document.getElementById('gtProgressPercentage').textContent = `${percent}% Completed`;
+        
+        const icon = document.getElementById('gtCuteProgressIcon');
+        const text = document.getElementById('gtMotivationText');
+        
+        if (percent === 0) { icon.textContent = '🌱'; text.textContent = "Time to plant some seeds! 🌱"; }
+        else if (percent < 50) { icon.textContent = '🌿'; text.textContent = "Keep going, it's growing! 🌿"; }
+        else if (percent < 100) { icon.textContent = '🏃'; text.textContent = "Almost there! 🏃"; }
+        else { icon.textContent = '🌳'; text.textContent = "Masterpiece Completed! 🌳"; }
+    }
+
+    gtAddTodoButton.onclick = () => {
+        const val = gtTodoInput.value.trim();
+        if (val) { gtAddProjectTodo(val); gtTodoInput.value = ''; }
+    };
+    gtTodoInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') gtAddTodoButton.click();
+    });
+
+    // Daily Routines in GT
+    function gtGetDailyKey() {
+        const d = new Date();
+        return `ghibli_daily_${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+    }
+    let gtDailyTodos = JSON.parse(localStorage.getItem(gtGetDailyKey())) || [];
+    
+    function gtRenderDailyTodos() {
+        const list = document.getElementById('gtDailyTodoList');
+        list.innerHTML = '';
+        gtDailyTodos.forEach(todo => {
+            const li = document.createElement('li');
+            li.className = `gt-todo-item ${todo.completed ? 'completed' : ''}`;
+            li.style.padding = '8px 12px'; 
+            
+            const cb = document.createElement('input');
+            cb.type = 'checkbox'; 
+            cb.checked = todo.completed;
+            cb.style.width = '24px'; cb.style.height = '24px'; cb.style.cursor = 'pointer'; cb.style.accentColor = 'var(--success-color)'; cb.style.border = 'none';
+            cb.onchange = (e) => {
+                todo.completed = e.target.checked;
+                localStorage.setItem(gtGetDailyKey(), JSON.stringify(gtDailyTodos));
+                gtRenderDailyTodos();
+            };
+            
+            const textSpan = document.createElement('span');
+            textSpan.className = 'gt-todo-text';
+            textSpan.textContent = todo.text;
+            
+            const delBtn = document.createElement('button');
+            delBtn.className = 'icon-btn';
+            delBtn.innerHTML = '<i class="fas fa-times opacity-50"></i>';
+            delBtn.onclick = () => {
+                gtDailyTodos = gtDailyTodos.filter(t => t.id !== todo.id);
+                localStorage.setItem(gtGetDailyKey(), JSON.stringify(gtDailyTodos));
+                gtRenderDailyTodos();
+            };
+            li.append(cb, textSpan, delBtn);
+            list.appendChild(li);
+        });
+        document.getElementById('gtDailyDateDisplay').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'});
+    }
+
+    document.getElementById('gtAddDailyTodoButton').onclick = () => {
+        const input = document.getElementById('gtDailyTodoInput');
+        if(input.value.trim()){
+            gtDailyTodos.push({ id: Date.now(), text: input.value.trim(), completed: false });
+            localStorage.setItem(gtGetDailyKey(), JSON.stringify(gtDailyTodos));
+            input.value = '';
+            gtRenderDailyTodos();
+        }
+    };
+
+    // Weekly Tracker in GT
+    function gtGetWeeklyKey() {
+        const d = new Date();
+        const diff = d.getDate() - d.getDay() + (d.getDay() === 0 ? -6 : 1); 
+        const start = new Date(d.setDate(diff)).toISOString().split('T')[0];
+        return `ghibli_weekly_${start}`;
+    }
+    function gtLoadWeeklyGoals() {
+        return parseInt(localStorage.getItem(gtGetWeeklyKey()) || '0');
+    }
+    function gtIncrementWeeklyGoal() {
+        let count = gtLoadWeeklyGoals();
+        if (count < 3) {
+            count++;
+            localStorage.setItem(gtGetWeeklyKey(), count);
+            gtUpdateGoalUI(count);
+        }
+    }
+    function gtUpdateGoalUI(count) {
+        document.getElementById('gtGoalStatus').textContent = `Progress: ${count}/3`;
+        document.getElementById('gtGoalCircle1').classList.toggle('completed', count >= 1);
+        document.getElementById('gtGoalCircle2').classList.toggle('completed', count >= 2);
+        document.getElementById('gtGoalCircle3').classList.toggle('completed', count >= 3);
+        document.getElementById('gtGoalMetMessage').classList.toggle('hidden', count < 3);
+    }
+
+    function gtUpdateClocks() {
+        const now = new Date();
+        document.getElementById('gtCurrentDateDisplay').textContent = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('gtCentralTime').textContent = now.toLocaleTimeString('en-US', { timeZone: 'America/Chicago', hour: '2-digit', minute: '2-digit', second:'2-digit' });
+        document.getElementById('gtPhilippinesTime').textContent = now.toLocaleTimeString('en-US', { timeZone: 'Asia/Manila', hour: '2-digit', minute: '2-digit', second:'2-digit' });
+    }
+
+    function gtCalculateDaysLeft() {
+        const today = new Date();
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+        document.getElementById('gtDaysLeft').textContent = `${lastDay - today.getDate()} Days Left`;
+    }
+
+    // Initialization (Main and GT)
     document.addEventListener('DOMContentLoaded', () => {
       let optionsHtml = '';
       allTimezones.forEach(tz => optionsHtml += `<option value="${tz.value}">${tz.display}</option>`);
@@ -2568,10 +3021,7 @@
       if (savedClientId) document.getElementById('gcalClientId').value = savedClientId;
       if (savedApiKey) document.getElementById('gcalApiKey').value = savedApiKey;
 
-      // Load CCTV & Countdowns
-      loadCameras();
       loadCountdowns();
-
       loadIncomeData();
       renderIncome();
       loadExpenseData();
@@ -2581,7 +3031,6 @@
       loadMatrixData();
       renderMatrix();
 
-      // Load Goals
       const savedGoals = localStorage.getItem(GOALS_KEY);
       if(savedGoals) { goalsItems = JSON.parse(savedGoals); }
       renderGoals();
@@ -2597,76 +3046,16 @@
       
       setInterval(updateClocks, 1000);
       setInterval(fetchWeeklyWeather, 30 * 60 * 1000);
+
+      // Goal Tracker Init
+      gtRenderTabs();
+      gtLoadActiveProject();
+      gtRenderDailyTodos();
+      gtUpdateGoalUI(gtLoadWeeklyGoals());
+      gtCalculateDaysLeft();
     });
 
-    // --- CCTV and Countdown Dialog Event Listeners ---
-    addCameraBtn?.addEventListener('click', () => cameraDialog.showModal());
-    cancelCameraBtn?.addEventListener('click', () => cameraDialog.close());
-    cameraForm?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const newCam = {
-            id: generateId(),
-            name: document.getElementById('camName').value.trim(),
-            feedType: document.getElementById('camFeedType').value,
-            url: document.getElementById('camUrl').value.trim(),
-            ip: document.getElementById('camIp').value.trim(),
-            port: document.getElementById('camPort').value.trim(),
-            username: document.getElementById('camUsername').value.trim(),
-            notes: document.getElementById('camNotes').value.trim()
-        };
-        cameras.push(newCam);
-        saveCameras();
-        renderCameras();
-        cameraDialog.close();
-        cameraForm.reset();
-    });
-
-    cctvGrid?.addEventListener('click', (e) => {
-        const btn = e.target.closest('.delete-cam-btn');
-        if (btn) {
-            cameras = cameras.filter(c => c.id !== btn.dataset.id);
-            saveCameras();
-            renderCameras();
-        }
-    });
-
-    addCountdownBtn?.addEventListener('click', () => {
-        const cdDateInput = document.getElementById('cdDate');
-        const today = new Date();
-        cdDateInput.value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        countdownDialog.showModal();
-    });
-    cancelCountdownBtn?.addEventListener('click', () => countdownDialog.close());
-    cdRepeatToggle?.addEventListener('change', (e) => {
-        cdRepeatFreqWrapper.style.display = e.target.checked ? 'block' : 'none';
-    });
-    countdownForm?.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const newCd = {
-            id: generateId(),
-            text: document.getElementById('cdText').value.trim(),
-            date: document.getElementById('cdDate').value,
-            repeats: cdRepeatToggle.checked,
-            freq: document.getElementById('cdRepeatFreq').value
-        };
-        countdowns.push(newCd);
-        saveCountdowns();
-        renderCountdowns();
-        countdownDialog.close();
-        countdownForm.reset();
-        cdRepeatFreqWrapper.style.display = 'none';
-    });
-
-    countdownGrid?.addEventListener('click', (e) => {
-        const btn = e.target.closest('.delete-cd-btn');
-        if (btn) {
-            countdowns = countdowns.filter(cd => cd.id !== btn.dataset.id);
-            saveCountdowns();
-            renderCountdowns();
-        }
-    });
-
-    // Event Listeners
+    // Event Listeners for settings/toggles
     toggles.forEach(t => t.addEventListener('change', () => { updateCardVisibility(); saveSettings(); updateClocks(); }));
     customSelects.forEach(s => s.addEventListener('change', () => { saveSettings(); updateClocks(); }));
     calendarTimezoneSelect.addEventListener('change', () => { saveSettings(); renderSmallCalendar(); });
