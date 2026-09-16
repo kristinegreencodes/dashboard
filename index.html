@@ -138,6 +138,7 @@
       overflow-x: hidden;
       padding: 40px 20px;
       box-sizing: border-box;
+      /* Remove forced background to let wallpaper show through, or keep a translucent one */
       background-color: transparent;
     }
 
@@ -2331,7 +2332,10 @@
             return;
         }
 
-        recurringExpenses.forEach(exp => {
+        // Sort by closest due date (past due dates will be at the top)
+        const sortedExpenses = [...recurringExpenses].sort((a, b) => new Date(a.nextDueDate + 'T00:00:00') - new Date(b.nextDueDate + 'T00:00:00'));
+
+        sortedExpenses.forEach(exp => {
             const dueDate = new Date(exp.nextDueDate + 'T00:00:00');
             const diffTime = dueDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -2339,11 +2343,15 @@
             let isPastDue = diffDays < 0;
             let daysText = diffDays === 0 ? "Due Today!" : (diffDays < 0 ? `Past due by ${Math.abs(diffDays)} days` : `Due in ${diffDays} days`);
 
+            // Format text date like "Sep. 10, 2026"
+            let formattedDate = dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            formattedDate = formattedDate.replace(/([a-zA-Z]{3}) /, '$1. ');
+
             recurringExpenseList.innerHTML += `
                 <div class="recurring-item ${isPastDue ? 'past-due' : ''}">
                     <div style="display:flex; flex-direction:column;">
                         <strong>${escapeHtml(exp.name)} <span style="font-size:11px; opacity:0.7; font-weight:normal; text-transform:capitalize;">(${exp.frequency})</span></strong>
-                        <span class="rec-days-left" style="font-size: 12px; margin-top:2px;">${daysText} (${exp.nextDueDate})</span>
+                        <span class="rec-days-left" style="font-size: 12px; margin-top:2px;">${daysText} (${formattedDate})</span>
                     </div>
                     <div style="display:flex; align-items:center; gap: 10px;">
                         <strong style="color: #e59866;">-$${parseFloat(exp.amount).toFixed(2)}</strong>
@@ -2397,7 +2405,10 @@
                     
                     saveRecurringExpenses();
                     renderRecurringExpenses();
-                    alert(`Marked as paid! Next due date is ${exp.nextDueDate}`);
+                    
+                    // Format output for the alert message too
+                    let newFormattedDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).replace(/([a-zA-Z]{3}) /, '$1. ');
+                    alert(`Marked as paid! Next due date is ${newFormattedDate}`);
                 }
                 return;
             }
