@@ -39,20 +39,20 @@
     }
 
     body {
-  font-family: 'Mali', cursive;
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  margin: 0;
-  padding: 0;
-  height: 100vh; /* Changed from min-height */
-  overflow: hidden; /* Prevents the whole page from scrolling/cutting */
-  display: flex;
-  flex-direction: row;
-  background-size: cover;
-  background-position: center;
-  background-attachment: fixed;
-  transition: background-color 0.3s, color 0.3s;
-}
+      font-family: 'Mali', cursive;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: row;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      transition: background-color 0.3s, color 0.3s;
+    }
 
     h1, h2, h3, .section-title, #sidebar h3, #rightSidebar h3, .countdown-text, .add-item-btn {
       font-family: 'Mali', cursive;
@@ -117,36 +117,36 @@
       transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
-   /* Left Sidebar */
-#sidebar {
-  width: var(--sidebar-width);
-  flex-shrink: 0;
-  background: var(--card-bg);
-  border-right: 4px solid var(--card-border);
-  padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  height: 100%; /* Changed to take 100% of the locked body */
-  display: flex;
-  flex-direction: column;
-  transition: background 0.3s, border-color 0.3s;
-}
+    /* Left Sidebar */
+    #sidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      background: var(--card-bg);
+      border-right: 4px solid var(--card-border);
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: background 0.3s, border-color 0.3s;
+    }
 
-/* Right Sidebar */
-#rightSidebar {
-  width: var(--sidebar-width);
-  flex-shrink: 0;
-  background: var(--card-bg);
-  border-left: 4px solid var(--card-border);
-  padding: 20px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  height: 100%; /* Changed to take 100% of the locked body */
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  transition: width 0.3s ease-in-out, background 0.3s, border-color 0.3s;
-}
+    /* Right Sidebar */
+    #rightSidebar {
+      width: var(--sidebar-width);
+      flex-shrink: 0;
+      background: var(--card-bg);
+      border-left: 4px solid var(--card-border);
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: width 0.3s ease-in-out, background 0.3s, border-color 0.3s;
+    }
 
     #rightSidebarToggleBtn {
       position: absolute;
@@ -188,13 +188,13 @@
     #clearBackgroundBtn:hover, .cancel-btn:hover { background-color: var(--text-main); }
 
     /* Main content */
-#mainContent {
-  flex-grow: 1;
-  padding: 30px;
-  box-sizing: border-box;
-  overflow-y: auto;
-  height: 100%; /* Added this so it scrolls properly */
-}
+    #mainContent {
+      flex-grow: 1;
+      padding: 30px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      height: 100%;
+    }
 
     /* Sidebar Local & Manila Time Cards */
     #sidebarLocalTimeCard, #sidebarManilaTimeCard { padding: 16px 12px; margin-bottom: 15px; text-align: center; }
@@ -325,7 +325,11 @@
     .income-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px dotted var(--card-border); }
     .income-history-item:last-child { border-bottom: none; }
 
-    /* Habit Tracker & Eisenhower Matrix Styles */
+    /* Habit Tracker Styles */
+    .habit-tab-btn { background: none; border: 2px solid transparent; color: var(--text-muted); font-family: 'Mali', cursive; font-weight: bold; font-size: 14px; cursor: pointer; padding: 5px 12px; border-radius: 12px; white-space: nowrap; transition: all 0.2s ease;}
+    .habit-tab-btn.active { background: var(--card-bg); color: var(--text-main); border-color: var(--card-border); box-shadow: 2px 2px 0px rgba(0,0,0,0.1); }
+    .habit-tab-btn:hover:not(.active) { background: var(--box-bg); border-color: var(--card-border); }
+
     .habit-card { background: var(--box-bg); border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
     .habit-info { display: flex; flex-direction: column; }
     .habit-title { font-weight: bold; font-size: 15px; color: var(--text-main); }
@@ -339,6 +343,7 @@
     .habit-dot { width: 14px; height: 14px; border-radius: 50%; background-color: rgba(124,179,66,0.3); display: flex; align-items: center; justify-content: center; font-size: 8px; }
     .habit-dot.completed { background-color: var(--card-border); color: white; }
 
+    /* Eisenhower Matrix Styles */
     .matrix-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
     .matrix-quadrant { background: var(--box-bg); border: 2px dashed var(--card-border); border-radius: 12px; padding: 12px; min-height: 140px; display: flex; flex-direction: column; }
     .matrix-q-title { font-size: 13px; font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid var(--card-border); padding-bottom: 4px; color: var(--text-main); }
@@ -369,25 +374,25 @@
     body.has-wallpaper:not(.dark-theme) .card, body.has-wallpaper:not(.dark-theme) #sidebarLocalTimeCard, body.has-wallpaper:not(.dark-theme) #sidebarManilaTimeCard, body.has-wallpaper:not(.dark-theme) .collapsible-section details { background: rgba(241, 248, 233, 0.9); }
 
    @media (max-width: 850px) {
-  body { 
-    flex-direction: column; 
-    height: auto; /* Let mobile page expand */
-    overflow: auto; /* Restore whole-page scroll for mobile */
+    body { 
+      flex-direction: column; 
+      height: auto;
+      overflow: auto;
+    }
+    #sidebar, #rightSidebar { 
+      width: 100%; 
+      height: auto; 
+      border: none; 
+      border-bottom: 4px solid var(--card-border); 
+    }
+    #rightSidebarToggleBtn { display: none; }
+    #rightSidebar.collapsed { width: 100%; padding: 20px; }
+    #mainContent {
+      height: auto;
+      overflow-y: visible;
+    }
+    .matrix-grid { grid-template-columns: 1fr; }
   }
-  #sidebar, #rightSidebar { 
-    width: 100%; 
-    height: auto; 
-    border: none; 
-    border-bottom: 4px solid var(--card-border); 
-  }
-  #rightSidebarToggleBtn { display: none; }
-  #rightSidebar.collapsed { width: 100%; padding: 20px; }
-  #mainContent {
-    height: auto; /* Let mobile content expand naturally */
-    overflow-y: visible;
-  }
-  .matrix-grid { grid-template-columns: 1fr; }
-}
   </style>
 </head>
 <body>
@@ -733,12 +738,30 @@
         <div class="collapsible-content">
           <div class="card" style="margin-bottom: 20px; padding: 25px;">
             <form id="addHabitForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
-               <input type="text" id="habitName" placeholder="Habit (e.g., Learn Mandarin)" required style="width: 220px; margin: 0;">
+               <input type="text" id="habitName" placeholder="Habit (e.g., Learn Mandarin)" required style="width: 200px; margin: 0;">
+               <select id="habitCategory" required style="width: 110px; margin: 0;">
+                  <option value="General">General</option>
+                  <option value="Business">Business</option>
+                  <option value="Health">Health</option>
+                  <option value="House">House</option>
+                  <option value="Family">Family</option>
+               </select>
                <input type="time" id="habitTime" required style="width: 130px; margin: 0;">
                <input type="number" id="habitDuration" placeholder="Mins" min="1" required style="width: 90px; margin: 0;">
                <button type="submit" class="add-item-btn" style="margin: 0;">Add Habit</button>
             </form>
           </div>
+          
+          <!-- Category Tabs -->
+          <div id="habitTabs" style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px dashed var(--card-border); padding-bottom: 12px; overflow-x: auto;">
+             <button class="habit-tab-btn active" data-category="All">All</button>
+             <button class="habit-tab-btn" data-category="Business">Business</button>
+             <button class="habit-tab-btn" data-category="Health">Health</button>
+             <button class="habit-tab-btn" data-category="House">House</button>
+             <button class="habit-tab-btn" data-category="Family">Family</button>
+             <button class="habit-tab-btn" data-category="General">General</button>
+          </div>
+
           <div id="habitsContainer">
              <!-- Habits with stopwatch and 12-hr sorted timeline render here -->
           </div>
@@ -844,6 +867,30 @@
       <div class="dialog-actions">
         <button type="button" class="cancel-btn" id="cancelGoalBtn">Cancel</button>
         <button type="submit">Save Goal</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Edit Habit Dialog -->
+  <dialog class="dashboard-dialog" id="editHabitDialog">
+    <form id="editHabitForm">
+      <h3>Edit Habit</h3>
+      <input type="hidden" id="editHabitId" />
+      <label>Habit Name* <input type="text" id="editHabitName" required /></label>
+      <label>Category
+          <select id="editHabitCategory">
+              <option value="General">General</option>
+              <option value="Business">Business</option>
+              <option value="Health">Health</option>
+              <option value="House">House</option>
+              <option value="Family">Family</option>
+          </select>
+      </label>
+      <label>Time* <input type="time" id="editHabitTime" required /></label>
+      <label>Duration (Mins)* <input type="number" id="editHabitDuration" min="1" required /></label>
+      <div class="dialog-actions">
+        <button type="button" class="cancel-btn" id="cancelEditHabitBtn">Cancel</button>
+        <button type="submit">Save Changes</button>
       </div>
     </form>
   </dialog>
@@ -1059,12 +1106,24 @@
     // Habit Tracker Variables
     const addHabitForm = document.getElementById('addHabitForm');
     const habitNameInput = document.getElementById('habitName');
+    const habitCategoryInput = document.getElementById('habitCategory');
     const habitTimeInput = document.getElementById('habitTime');
     const habitDurationInput = document.getElementById('habitDuration');
     const habitsContainer = document.getElementById('habitsContainer');
     let habits = [];
     let habitTimers = {};
+    let currentHabitCategory = 'All';
     const HABITS_KEY = 'userHabitsList';
+
+    // Edit Habit Variables
+    const editHabitDialog = document.getElementById('editHabitDialog');
+    const editHabitForm = document.getElementById('editHabitForm');
+    const cancelEditHabitBtn = document.getElementById('cancelEditHabitBtn');
+    const editHabitId = document.getElementById('editHabitId');
+    const editHabitName = document.getElementById('editHabitName');
+    const editHabitCategory = document.getElementById('editHabitCategory');
+    const editHabitTime = document.getElementById('editHabitTime');
+    const editHabitDuration = document.getElementById('editHabitDuration');
 
     // Eisenhower Matrix Variables
     const addMatrixForm = document.getElementById('addMatrixForm');
@@ -2021,8 +2080,14 @@
 
     function renderHabits() {
         if (!habitsContainer) return;
-        if (habits.length === 0) {
-            habitsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 15px;">No habits added yet. Add one above!</div>';
+        
+        // Filter habits based on current selected tab
+        let displayHabits = currentHabitCategory === 'All' 
+            ? habits 
+            : habits.filter(h => (h.category || 'General') === currentHabitCategory);
+
+        if (displayHabits.length === 0) {
+            habitsContainer.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 15px;">No habits added yet in this category. Add one above!</div>';
             return;
         }
 
@@ -2039,8 +2104,8 @@
             pastDays.push({ dateStr, label });
         }
 
-        // Sort habits chronologically by time of day (earliest first)
-        const sortedHabits = [...habits].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
+        // Sort chronologically by time of day (earliest first)
+        const sortedHabits = [...displayHabits].sort((a, b) => (a.time || '').localeCompare(b.time || ''));
 
         habitsContainer.innerHTML = sortedHabits.map(habit => {
             if (!habit.logs) habit.logs = {};
@@ -2065,7 +2130,6 @@
                 }
             }
 
-            // Build 7-day dot matrix HTML
             let dotsHtml = '';
             pastDays.forEach(day => {
                 const isCompleted = habit.logs[day.dateStr] ? true : false;
@@ -2082,7 +2146,6 @@
             const isTodayDone = habit.logs[todayStr] ? true : false;
             const formattedTime = format12Hour(habit.time);
             
-            // Current timer display seconds
             const currentSecs = habitTimers[habit.id] ? habitTimers[habit.id].seconds : 0;
             const timerMin = Math.floor(currentSecs / 60).toString().padStart(2, '0');
             const timerSec = (currentSecs % 60).toString().padStart(2, '0');
@@ -2091,7 +2154,10 @@
             return `
                 <div class="habit-card" data-id="${habit.id}">
                     <div class="habit-info">
-                        <span class="habit-title">${escapeHtml(habit.name)}</span>
+                        <span class="habit-title">
+                            ${escapeHtml(habit.name)} 
+                            <span style="font-size: 10px; background: var(--card-border); color: white; padding: 2px 6px; border-radius: 8px; vertical-align: middle; margin-left: 5px; font-weight: normal;">${escapeHtml(habit.category || 'General')}</span>
+                        </span>
                         <span class="habit-meta">⏰ ${formattedTime} • ⏱️ Target: ${habit.duration}m</span>
                     </div>
                     <div class="habit-tracker-row">
@@ -2104,7 +2170,8 @@
                         <label style="font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 4px; margin-left: 5px;">
                             <input type="checkbox" class="habit-check" data-id="${habit.id}" ${isTodayDone ? 'checked' : ''} style="transform: scale(1.1);"> Done
                         </label>
-                        <button type="button" class="icon-btn delete-habit-btn" data-id="${habit.id}" style="font-size: 15px;">✕</button>
+                        <button type="button" class="icon-btn edit-habit-btn" data-id="${habit.id}" style="font-size: 15px; margin-left: 5px;" title="Edit Habit">✏️</button>
+                        <button type="button" class="icon-btn delete-habit-btn" data-id="${habit.id}" style="font-size: 15px;" title="Delete Habit">✕</button>
                     </div>
                 </div>
             `;
@@ -2153,24 +2220,64 @@
         renderHabits();
     }
 
+    // Category Tabs Switching
+    document.querySelectorAll('.habit-tab-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.habit-tab-btn').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            currentHabitCategory = e.target.dataset.category;
+            renderHabits();
+        });
+    });
+
     if(addHabitForm) {
         addHabitForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const newHabit = {
                 id: generateId(),
                 name: habitNameInput.value.trim(),
+                category: habitCategoryInput.value,
                 time: habitTimeInput.value,
                 duration: habitDurationInput.value,
                 logs: {}
             };
             habits.push(newHabit);
             saveHabitsData();
+            
+            // Switch to the correct tab if they added a habit in another tab
+            if (currentHabitCategory !== 'All' && currentHabitCategory !== newHabit.category) {
+                document.querySelectorAll('.habit-tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                    if(b.dataset.category === newHabit.category) b.classList.add('active');
+                });
+                currentHabitCategory = newHabit.category;
+            }
+            
             renderHabits();
             habitNameInput.value = '';
             habitTimeInput.value = '';
             habitDurationInput.value = '';
         });
     }
+
+    // Edit Habit Logic
+    cancelEditHabitBtn?.addEventListener('click', () => editHabitDialog.close());
+
+    editHabitForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = editHabitId.value;
+        const habitIndex = habits.findIndex(h => h.id === id);
+        
+        if (habitIndex !== -1) {
+            habits[habitIndex].name = editHabitName.value.trim();
+            habits[habitIndex].category = editHabitCategory.value;
+            habits[habitIndex].time = editHabitTime.value;
+            habits[habitIndex].duration = editHabitDuration.value;
+            saveHabitsData();
+            renderHabits();
+            editHabitDialog.close();
+        }
+    });
 
     if(habitsContainer) {
         habitsContainer.addEventListener('click', (e) => {
@@ -2180,13 +2287,27 @@
                 return;
             }
 
-            const btn = e.target.closest('.delete-habit-btn');
-            if (btn) {
-                if (habitTimers[btn.dataset.id]) {
-                    clearInterval(habitTimers[btn.dataset.id].interval);
-                    delete habitTimers[btn.dataset.id];
+            const editBtn = e.target.closest('.edit-habit-btn');
+            if (editBtn) {
+                const habit = habits.find(h => h.id === editBtn.dataset.id);
+                if (habit) {
+                    editHabitId.value = habit.id;
+                    editHabitName.value = habit.name;
+                    editHabitCategory.value = habit.category || 'General';
+                    editHabitTime.value = habit.time || '';
+                    editHabitDuration.value = habit.duration || '';
+                    editHabitDialog.showModal();
                 }
-                habits = habits.filter(h => h.id !== btn.dataset.id);
+                return;
+            }
+
+            const delBtn = e.target.closest('.delete-habit-btn');
+            if (delBtn) {
+                if (habitTimers[delBtn.dataset.id]) {
+                    clearInterval(habitTimers[delBtn.dataset.id].interval);
+                    delete habitTimers[delBtn.dataset.id];
+                }
+                habits = habits.filter(h => h.id !== delBtn.dataset.id);
                 saveHabitsData();
                 renderHabits();
             }
