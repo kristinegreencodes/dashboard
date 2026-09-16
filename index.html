@@ -137,47 +137,6 @@
     #sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-right: none; }
     #rightSidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-left: none; }
 
-    /* Toggle Buttons */
-    .toggle-wrapper {
-      position: relative;
-      width: 0;
-      height: 100%;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-    }
-
-    #leftSidebarToggleBtn, #rightSidebarToggleBtn {
-      position: absolute;
-      width: 40px;
-      height: 80px;
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border: 4px solid var(--card-border);
-      cursor: pointer;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background-color 0.3s, border-color 0.3s;
-    }
-
-    #leftSidebarToggleBtn {
-      left: 0;
-      border-left: none;
-      border-radius: 0 16px 16px 0;
-    }
-
-    #rightSidebarToggleBtn {
-      right: 0;
-      border-right: none;
-      border-radius: 16px 0 0 16px;
-    }
-
-    #leftSidebarToggleBtn:hover, #rightSidebarToggleBtn:hover {
-      background-color: var(--box-bg);
-    }
-
     #sidebar h3, #rightSidebar h3 { margin-top: 0; font-size: 18px; border-bottom: 3px dashed var(--card-border); padding-bottom: 10px; }
 
     .toggle-group { margin-bottom: 15px; background: var(--box-bg); padding: 10px; border-radius: var(--border-radius-sm); border: 2px dashed var(--card-border); }
@@ -357,6 +316,35 @@
     .icon-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: var(--card-border); }
     .icon-btn:hover { color: #e74c3c; }
 
+    /* Bottom Toggle Buttons */
+    .bottom-toggle {
+      position: fixed;
+      bottom: 15px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background-color: var(--box-bg);
+      color: var(--text-main);
+      border: 2px dashed var(--card-border);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1001;
+      font-size: 14px;
+      opacity: 0.4;
+      transition: all 0.3s ease;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+    }
+    .bottom-toggle:hover {
+      opacity: 1;
+      transform: scale(1.1);
+      background-color: var(--card-bg);
+      border-style: solid;
+    }
+    #leftSidebarToggleBtn { left: 15px; }
+    #rightSidebarToggleBtn { right: 15px; }
+
     /* Dialogs */
     dialog.dashboard-dialog { padding: 0; width: min(420px, 92vw); background-color: var(--box-bg); color: var(--text-main); border: 3px solid var(--card-border); border-radius: var(--border-radius-lg); }
     dialog.dashboard-dialog::backdrop { background: rgba(0,0,0,0.6); }
@@ -389,7 +377,7 @@
       border: none; 
       border-bottom: 4px solid var(--card-border); 
     }
-    .toggle-wrapper { display: none; }
+    .bottom-toggle { display: none; }
     #sidebar.collapsed, #rightSidebar.collapsed { width: 100%; padding: 20px; border-bottom: 4px solid var(--card-border); }
     #mainContent {
       height: auto;
@@ -400,6 +388,10 @@
   </style>
 </head>
 <body>
+
+  <!-- Sidebars & Toggles -->
+  <button id="leftSidebarToggleBtn" class="bottom-toggle" aria-label="Toggle Left Sidebar">◀</button>
+  <button id="rightSidebarToggleBtn" class="bottom-toggle" aria-label="Toggle Right Sidebar">▶</button>
 
   <div id="sidebar">
     <!-- Manila Time -->
@@ -521,10 +513,6 @@
             </div>
         </details>
     </div>
-  </div>
-
-  <div class="toggle-wrapper">
-    <button id="leftSidebarToggleBtn" aria-label="Toggle Left Sidebar">◀</button>
   </div>
 
   <div id="mainContent">
@@ -825,10 +813,6 @@
 
   </div>
 
-  <div class="toggle-wrapper">
-    <button id="rightSidebarToggleBtn" aria-label="Toggle Right Sidebar">▶</button>
-  </div>
-
   <div id="rightSidebar">
     <div id="notepadCollapsible" class="collapsible-section">
         <details open> <summary>📝 Notepad</summary>
@@ -934,6 +918,92 @@
         </details>
     </div>
   </div>
+
+  <!-- Dialogs -->
+  <dialog class="dashboard-dialog" id="cameraDialog">
+    <form id="cameraForm">
+      <h3>Add CCTV Camera</h3>
+      <label>Camera Name* <input type="text" id="camName" maxlength="60" required placeholder="e.g. Front Door" /></label>
+      <label>Feed Type* 
+        <select id="camFeedType">
+          <option value="image">Snapshot / MJPEG Image URL</option>
+          <option value="video">Video Stream URL</option>
+          <option value="iframe">Web Viewer (IFrame URL)</option>
+        </select>
+      </label>
+      <label>Feed URL* <input type="url" id="camUrl" required /></label>
+      <div style="display:flex; gap:10px;">
+        <label style="flex:1;">IP Address <input type="text" id="camIp" /></label>
+        <label style="flex:1;">Port <input type="number" id="camPort" /></label>
+      </div>
+      <label>Username <input type="text" id="camUsername" /></label>
+      <label>Password <input type="password" id="camPassword" /></label>
+      <label>Notes <input type="text" id="camNotes" /></label>
+      <div class="dialog-actions">
+        <button type="button" class="cancel-btn" id="cancelCameraBtn">Cancel</button>
+        <button type="submit">Save Camera</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dashboard-dialog" id="countdownDialog">
+    <form id="countdownForm">
+      <h3>Add Countdown</h3>
+      <label>What's it about?* <input type="text" id="cdText" required /></label>
+      <label>Date* <input type="date" id="cdDate" required /></label>
+      <label style="flex-direction:row; align-items:center;">
+        <input type="checkbox" id="cdRepeatToggle" style="width:auto; margin-right:8px;" /> Repeats
+      </label>
+      <label id="cdRepeatFreqWrapper" style="display:none;">Repeat frequency
+        <select id="cdRepeatFreq">
+          <option value="yearly">Yearly</option>
+          <option value="monthly">Monthly</option>
+          <option value="weekly">Weekly</option>
+        </select>
+      </label>
+      <div class="dialog-actions">
+        <button type="button" class="cancel-btn" id="cancelCountdownBtn">Cancel</button>
+        <button type="submit">Save Countdown</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dashboard-dialog" id="incomeGoalDialog">
+    <form id="incomeGoalForm">
+      <h3>Set Monthly Income Goal</h3>
+      <label>Goal Amount ($)* <input type="number" id="goalAmountInput" step="0.01" required /></label>
+      <div class="dialog-actions">
+        <button type="button" class="cancel-btn" id="cancelGoalBtn">Cancel</button>
+        <button type="submit">Save Goal</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog class="dashboard-dialog" id="editHabitDialog">
+    <form id="editHabitForm">
+      <h3>Edit Habit</h3>
+      <input type="hidden" id="editHabitId" />
+      <label>Habit Name* <input type="text" id="editHabitName" required /></label>
+      <label>Category
+          <select id="editHabitCategory">
+              <option value="General">General</option>
+              <option value="Business">Business</option>
+              <option value="Health">Health</option>
+              <option value="House">House</option>
+              <option value="Family">Family</option>
+              <option value="School">School</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Social Media">Social Media</option>
+          </select>
+      </label>
+      <label>Time* <input type="time" id="editHabitTime" required /></label>
+      <label>Duration (Mins)* <input type="number" id="editHabitDuration" min="1" required /></label>
+      <div class="dialog-actions">
+        <button type="button" class="cancel-btn" id="cancelEditHabitBtn">Cancel</button>
+        <button type="submit">Save Changes</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -2221,6 +2291,19 @@
             habits[habitIndex].time = editHabitTime.value;
             habits[habitIndex].duration = editHabitDuration.value;
             saveHabitsData();
+            
+            // If we are viewing a specific category and just changed the item out of it, update view
+            if (currentHabitCategory !== 'All' && currentHabitCategory !== habits[habitIndex].category) {
+                // Optionally switch to the new tab:
+                /* 
+                document.querySelectorAll('.habit-tab-btn').forEach(b => {
+                    b.classList.remove('active');
+                    if(b.dataset.category === habits[habitIndex].category) b.classList.add('active');
+                });
+                currentHabitCategory = habits[habitIndex].category;
+                */
+            }
+
             renderHabits();
             editHabitDialog.close();
         }
