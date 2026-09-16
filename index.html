@@ -137,6 +137,47 @@
     #sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-right: none; }
     #rightSidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-left: none; }
 
+    /* Toggle Buttons */
+    .toggle-wrapper {
+      position: relative;
+      width: 0;
+      height: 100%;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+    }
+
+    #leftSidebarToggleBtn, #rightSidebarToggleBtn {
+      position: absolute;
+      width: 40px;
+      height: 80px;
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 4px solid var(--card-border);
+      cursor: pointer;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    #leftSidebarToggleBtn {
+      left: 0;
+      border-left: none;
+      border-radius: 0 16px 16px 0;
+    }
+
+    #rightSidebarToggleBtn {
+      right: 0;
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+    }
+
+    #leftSidebarToggleBtn:hover, #rightSidebarToggleBtn:hover {
+      background-color: var(--box-bg);
+    }
+
     #sidebar h3, #rightSidebar h3 { margin-top: 0; font-size: 18px; border-bottom: 3px dashed var(--card-border); padding-bottom: 10px; }
 
     .toggle-group { margin-bottom: 15px; background: var(--box-bg); padding: 10px; border-radius: var(--border-radius-sm); border: 2px dashed var(--card-border); }
@@ -273,8 +314,37 @@
     .cctv-card-header { padding: 15px; display: flex; justify-content: space-between;}
     .cctv-meta { padding: 15px; font-size: 13px; font-weight: 600;}
 
-    .countdown-card { padding: 25px; text-align: center; }
-    .countdown-days { font-size: 36px; color: var(--accent-color); font-weight: bold; margin: 10px 0; }
+    /* Slow Bouncing Countdown Cubes */
+    @keyframes slowCubeBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    #countdownGrid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      justify-content: flex-start;
+    }
+
+    .countdown-card {
+      width: 140px;
+      height: 140px;
+      padding: 12px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+      animation: slowCubeBounce 3.5s infinite ease-in-out;
+    }
+    
+    /* Staggered animation for cute floating effect */
+    .countdown-card:nth-child(even) { animation-delay: 1.2s; }
+    .countdown-card:nth-child(3n) { animation-delay: 2.4s; }
+
+    .countdown-days { font-size: 22px; color: var(--accent-color); font-weight: bold; margin: 8px 0; line-height: 1.1; }
     .countdown-days.today { color: #e74c3c; }
 
     /* Income & Expense Tracker Styles */
@@ -550,44 +620,44 @@
       </details>
     </div>
 
-    <div class="grid">
-      <div class="card" id="pstCard">
+    <div class="grid" style="display: flex; flex-wrap: wrap; gap: 15px;">
+      <div class="card" id="pstCard" style="flex: 1 1 200px;">
         <h2>PST (Los Angeles)</h2>
         <div class="time-display" id="pstTime">--:--:--</div>
         <div class="date-display" id="pstDate">---</div>
       </div>
 
-      <div class="card" id="mstCard">
+      <div class="card" id="mstCard" style="flex: 1 1 200px;">
         <h2>MST (Denver)</h2>
         <div class="time-display" id="mstTime">--:--:--</div>
         <div class="date-display" id="mstDate">---</div>
       </div>
 
-      <div class="card" id="cstCard">
+      <div class="card" id="cstCard" style="flex: 1 1 200px;">
         <h2>CST (Chicago)</h2>
         <div class="time-display" id="cstTime">--:--:--</div>
         <div class="date-display" id="cstDate">---</div>
       </div>
 
-      <div class="card" id="estCard">
+      <div class="card" id="estCard" style="flex: 1 1 200px;">
         <h2>EST (New York)</h2>
         <div class="time-display" id="estTime">--:--:--</div>
         <div class="date-display" id="estDate">---</div>
       </div>
 
-      <div class="card" id="custom1Card">
+      <div class="card" id="custom1Card" style="flex: 1 1 200px;">
         <h2 id="custom1CardTitle">Custom Timezone</h2>
         <div class="time-display" id="custom1Time">--:--:--</div>
         <div class="date-display" id="custom1Date">---</div>
       </div>
 
-      <div class="card" id="custom2Card">
+      <div class="card" id="custom2Card" style="flex: 1 1 200px;">
         <h2 id="custom2CardTitle">Custom Timezone</h2>
         <div class="time-display" id="custom2Time">--:--:--</div>
         <div class="date-display" id="custom2Date">---</div>
       </div>
 
-      <div class="card" id="custom3Card">
+      <div class="card" id="custom3Card" style="flex: 1 1 200px;">
         <h2 id="custom3CardTitle">Custom Timezone</h2>
         <div class="time-display" id="custom3Time">--:--:--</div>
         <div class="date-display" id="custom3Date">---</div>
@@ -603,7 +673,7 @@
             <span style="font-size: 14px; color: var(--text-muted);">Manage your security camera feeds</span>
             <button class="add-item-btn" id="addCameraBtn" type="button">+ Add Camera</button>
           </div>
-          <div class="grid" id="cctvGrid"></div>
+          <div class="grid" id="cctvGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;"></div>
         </div>
       </details>
     </div>
@@ -617,7 +687,7 @@
             <span style="font-size: 14px; color: var(--text-muted);">Track important upcoming dates</span>
             <button class="add-item-btn" id="addCountdownBtn" type="button">+ Add Countdown</button>
           </div>
-          <div class="grid" id="countdownGrid"></div>
+          <div id="countdownGrid"></div>
         </div>
       </details>
     </div>
@@ -1311,12 +1381,12 @@
 
             return `
                 <div class="card countdown-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <h2 style="margin:0; font-size:16px;">${escapeHtml(cd.text)}</h2>
-                        <button type="button" class="icon-btn delete-cd-btn" data-id="${cd.id}">✕</button>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; width: 100%;">
+                        <h2 style="margin:0; font-size:13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;" title="${escapeHtml(cd.text)}">${escapeHtml(cd.text)}</h2>
+                        <button type="button" class="icon-btn delete-cd-btn" data-id="${cd.id}" style="font-size: 14px; padding: 0;">✕</button>
                     </div>
                     <div class="countdown-days ${isTodayClass}">${dayText}</div>
-                    <div class="date-display">Target: ${cd.date}</div>
+                    <div class="date-display" style="font-size: 10px;">${cd.date}</div>
                 </div>
             `;
         }).join('');
