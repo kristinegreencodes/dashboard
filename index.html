@@ -138,7 +138,6 @@
       overflow-x: hidden;
       padding: 40px 20px;
       box-sizing: border-box;
-      /* Remove forced background to let wallpaper show through, or keep a translucent one */
       background-color: transparent;
     }
 
@@ -348,6 +347,11 @@
     
     .income-history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px dotted var(--card-border); }
     .income-history-item:last-child { border-bottom: none; }
+
+    /* Recurring Expenses (Bills) Styles */
+    .recurring-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 2px dashed var(--card-border); border-radius: 12px; margin-bottom: 10px; background: var(--box-bg); transition: background-color 0.3s, border-color 0.3s; }
+    .recurring-item.past-due { border-color: #e74c3c; background-color: rgba(231, 76, 60, 0.1); }
+    .recurring-item.past-due .rec-days-left { color: #e74c3c; font-weight: bold; }
 
     /* Habit Tracker Styles */
     .habit-tab-btn { background: none; border: 2px solid transparent; color: var(--text-muted); font-family: 'Mali', cursive; font-weight: bold; font-size: 14px; cursor: pointer; padding: 5px 12px; border-radius: 12px; white-space: nowrap; transition: all 0.2s ease;}
@@ -806,6 +810,26 @@
                  <input type="date" id="expenseDate" required style="width: 160px; margin: 0;">
                  <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Expense</button>
               </form>
+            </div>
+
+            <!-- RECURRING EXPENSES (BILLS) SECTION ADDED HERE -->
+            <div class="card" style="margin-bottom: 20px; padding: 25px;">
+              <div class="dashboard-section-header" style="margin-top: 0; margin-bottom: 15px;">
+                  <span style="font-size: 16px; font-weight: bold;">🔄 Recurring Expenses (Bills)</span>
+              </div>
+              <form id="addRecurringExpenseForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
+                  <input type="text" id="recExpName" placeholder="Bill Name" required style="width: 160px; margin: 0;">
+                  <input type="number" id="recExpAmount" placeholder="Amount ($)" step="0.01" required style="width: 110px; margin: 0;">
+                  <select id="recExpFreq" required style="width: 120px; margin: 0;">
+                      <option value="monthly">Monthly</option>
+                      <option value="quarterly">Quarterly</option>
+                  </select>
+                  <input type="date" id="recExpDate" required style="width: 140px; margin: 0;">
+                  <button type="submit" class="add-item-btn" style="margin: 0; background-color: #c1694f;">Add Bill</button>
+              </form>
+              <div id="recurringExpenseList" style="margin-top: 15px; max-height: 250px; overflow-y: auto;">
+                  <!-- Recurring items list will render here -->
+              </div>
             </div>
 
             <div class="collapsible-section" style="margin-top: 0;">
@@ -1332,6 +1356,17 @@
 
     let expenseEntries = [];
     const EXPENSE_ENTRIES_KEY = 'userExpenseEntries';
+
+    // Recurring Expenses Variables
+    const addRecurringExpenseForm = document.getElementById('addRecurringExpenseForm');
+    const recExpNameInput = document.getElementById('recExpName');
+    const recExpAmountInput = document.getElementById('recExpAmount');
+    const recExpFreqInput = document.getElementById('recExpFreq');
+    const recExpDateInput = document.getElementById('recExpDate');
+    const recurringExpenseList = document.getElementById('recurringExpenseList');
+
+    let recurringExpenses = [];
+    const REC_EXPENSES_KEY = 'userRecurringExpenses';
 
     // Habit Tracker Variables
     const addHabitForm = document.getElementById('addHabitForm');
@@ -2272,6 +2307,110 @@
         });
     }
 
+    // --- Recurring Expenses Logic ---
+    function loadRecurringExpenses() {
+        try {
+            const saved = localStorage.getItem(REC_EXPENSES_KEY);
+            if (saved) recurringExpenses = JSON.parse(saved);
+        } catch (e) { recurringExpenses = []; }
+    }
+
+    function saveRecurringExpenses() {
+        localStorage.setItem(REC_EXPENSES_KEY, JSON.stringify(recurringExpenses));
+    }
+
+    function renderRecurringExpenses() {
+        if (!recurringExpenseList) return;
+        recurringExpenseList.innerHTML = '';
+        
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        if (recurringExpenses.length === 0) {
+            recurringExpenseList.innerHTML = '<div style="text-align: center; color: var(--text-muted); padding: 10px;">No recurring bills added.</div>';
+            return;
+        }
+
+        recurringExpenses.forEach(exp => {
+            const dueDate = new Date(exp.nextDueDate + 'T00:00:00');
+            const diffTime = dueDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            let isPastDue = diffDays < 0;
+            let daysText = diffDays === 0 ? "Due Today!" : (diffDays < 0 ? `Past due by ${Math.abs(diffDays)} days` : `Due in ${diffDays} days`);
+
+            recurringExpenseList.innerHTML += `
+                <div class="recurring-item ${isPastDue ? 'past-due' : ''}">
+                    <div style="display:flex; flex-direction:column;">
+                        <strong>${escapeHtml(exp.name)} <span style="font-size:11px; opacity:0.7; font-weight:normal; text-transform:capitalize;">(${exp.frequency})</span></strong>
+                        <span class="rec-days-left" style="font-size: 12px; margin-top:2px;">${daysText} (${exp.nextDueDate})</span>
+                    </div>
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <strong style="color: #e59866;">-$${parseFloat(exp.amount).toFixed(2)}</strong>
+                        <button type="button" class="add-item-btn pay-rec-btn" data-id="${exp.id}" style="padding: 4px 10px; font-size: 12px; background-color: var(--success-color); box-shadow:none;">✔️ Paid</button>
+                        <button type="button" class="icon-btn delete-rec-btn" data-id="${exp.id}" style="font-size: 14px;">✕</button>
+                    </div>
+                </div>
+            `;
+        });
+    }
+
+    if(addRecurringExpenseForm) {
+        addRecurringExpenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const newRec = {
+                id: generateId(),
+                name: recExpNameInput.value.trim(),
+                amount: recExpAmountInput.value,
+                frequency: recExpFreqInput.value,
+                nextDueDate: recExpDateInput.value
+            };
+            recurringExpenses.push(newRec);
+            saveRecurringExpenses();
+            renderRecurringExpenses();
+            recExpNameInput.value = '';
+            recExpAmountInput.value = '';
+            recExpDateInput.value = '';
+        });
+    }
+
+    if(recurringExpenseList) {
+        recurringExpenseList.addEventListener('click', (e) => {
+            const payBtn = e.target.closest('.pay-rec-btn');
+            if (payBtn) {
+                const id = payBtn.dataset.id;
+                const expIndex = recurringExpenses.findIndex(r => r.id === id);
+                if (expIndex > -1) {
+                    const exp = recurringExpenses[expIndex];
+                    // Advance date logic
+                    let d = new Date(exp.nextDueDate + 'T00:00:00');
+                    if (exp.frequency === 'monthly') {
+                        d.setMonth(d.getMonth() + 1);
+                    } else if (exp.frequency === 'quarterly') {
+                        d.setMonth(d.getMonth() + 3);
+                    }
+                    
+                    const yyyy = d.getFullYear();
+                    const mm = String(d.getMonth() + 1).padStart(2, '0');
+                    const dd = String(d.getDate()).padStart(2, '0');
+                    exp.nextDueDate = `${yyyy}-${mm}-${dd}`;
+                    
+                    saveRecurringExpenses();
+                    renderRecurringExpenses();
+                    alert(`Marked as paid! Next due date is ${exp.nextDueDate}`);
+                }
+                return;
+            }
+
+            const delBtn = e.target.closest('.delete-rec-btn');
+            if (delBtn) {
+                recurringExpenses = recurringExpenses.filter(r => r.id !== delBtn.dataset.id);
+                saveRecurringExpenses();
+                renderRecurringExpenses();
+            }
+        });
+    }
+
     // --- Habit Tracker & Stopwatch Logic ---
     function loadHabitsData() {
         try {
@@ -2480,6 +2619,12 @@
             habits[habitIndex].time = editHabitTime.value;
             habits[habitIndex].duration = editHabitDuration.value;
             saveHabitsData();
+            
+            // If we are viewing a specific category and just changed the item out of it, update view
+            if (currentHabitCategory !== 'All' && currentHabitCategory !== habits[habitIndex].category) {
+                // Keep the current view but habit will disappear
+            }
+
             renderHabits();
             editHabitDialog.close();
         }
@@ -2651,6 +2796,7 @@
       updateHolidayReminder();
       updateYearEndCountdown();
       updateFastingTimers(now.getHours(), now.getMinutes(), now.getSeconds());
+      renderRecurringExpenses(); // Update past-due statuses naturally over time
       
       // Goal Tracker specific clocks update
       if (currentApp === 'goalTracker') {
@@ -3028,6 +3174,8 @@
       renderIncome();
       loadExpenseData();
       renderExpenses();
+      loadRecurringExpenses();
+      renderRecurringExpenses();
       loadHabitsData();
       renderHabits();
       loadMatrixData();
@@ -3041,6 +3189,7 @@
       const todayDefault = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       if(incomeDateInput) incomeDateInput.value = todayDefault;
       if(expenseDateInput) expenseDateInput.value = todayDefault;
+      if(recExpDateInput) recExpDateInput.value = todayDefault;
 
       updateCardVisibility();
       fetchWeeklyWeather();
