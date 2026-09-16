@@ -739,12 +739,15 @@
           <div class="card" style="margin-bottom: 20px; padding: 25px;">
             <form id="addHabitForm" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: center; background: var(--box-bg); padding: 15px; border-radius: 12px; border: 2px dashed var(--card-border);">
                <input type="text" id="habitName" placeholder="Habit (e.g., Learn Mandarin)" required style="width: 200px; margin: 0;">
-               <select id="habitCategory" required style="width: 110px; margin: 0;">
+               <select id="habitCategory" required style="width: 120px; margin: 0;">
                   <option value="General">General</option>
                   <option value="Business">Business</option>
                   <option value="Health">Health</option>
                   <option value="House">House</option>
                   <option value="Family">Family</option>
+                  <option value="School">School</option>
+                  <option value="E-commerce">E-commerce</option>
+                  <option value="Social Media">Social Media</option>
                </select>
                <input type="time" id="habitTime" required style="width: 130px; margin: 0;">
                <input type="number" id="habitDuration" placeholder="Mins" min="1" required style="width: 90px; margin: 0;">
@@ -755,6 +758,9 @@
           <!-- Category Tabs -->
           <div id="habitTabs" style="display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px dashed var(--card-border); padding-bottom: 12px; overflow-x: auto;">
              <button class="habit-tab-btn active" data-category="All">All</button>
+             <button class="habit-tab-btn" data-category="School">School</button>
+             <button class="habit-tab-btn" data-category="E-commerce">E-commerce</button>
+             <button class="habit-tab-btn" data-category="Social Media">Social Media</button>
              <button class="habit-tab-btn" data-category="Business">Business</button>
              <button class="habit-tab-btn" data-category="Health">Health</button>
              <button class="habit-tab-btn" data-category="House">House</button>
@@ -884,6 +890,9 @@
               <option value="Health">Health</option>
               <option value="House">House</option>
               <option value="Family">Family</option>
+              <option value="School">School</option>
+              <option value="E-commerce">E-commerce</option>
+              <option value="Social Media">Social Media</option>
           </select>
       </label>
       <label>Time* <input type="time" id="editHabitTime" required /></label>
