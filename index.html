@@ -117,62 +117,66 @@
       transition: background-color 0.3s, border-color 0.3s, color 0.3s;
     }
 
-    /* Left Sidebar */
-    #sidebar {
+    /* Left & Right Sidebars */
+    #sidebar, #rightSidebar {
       width: var(--sidebar-width);
       flex-shrink: 0;
       background: var(--card-bg);
-      border-right: 4px solid var(--card-border);
       padding: 20px;
       box-sizing: border-box;
       overflow-y: auto;
+      overflow-x: hidden;
       height: 100%;
       display: flex;
       flex-direction: column;
-      transition: background 0.3s, border-color 0.3s;
+      transition: width 0.3s ease-in-out, padding 0.3s ease-in-out, background 0.3s, border-color 0.3s;
     }
+    #sidebar { border-right: 4px solid var(--card-border); }
+    #rightSidebar { border-left: 4px solid var(--card-border); }
 
-    /* Right Sidebar */
-    #rightSidebar {
-      width: var(--sidebar-width);
-      flex-shrink: 0;
-      background: var(--card-bg);
-      border-left: 4px solid var(--card-border);
-      padding: 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
+    #sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-right: none; }
+    #rightSidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; border-left: none; }
+
+    /* Toggle Buttons */
+    .toggle-wrapper {
       position: relative;
-      transition: width 0.3s ease-in-out, background 0.3s, border-color 0.3s;
+      width: 0;
+      height: 100%;
+      z-index: 100;
+      display: flex;
+      align-items: center;
     }
 
-    #rightSidebarToggleBtn {
+    #leftSidebarToggleBtn, #rightSidebarToggleBtn {
       position: absolute;
-      left: -44px;
-      top: 50%;
-      transform: translateY(-50%);
       width: 40px;
       height: 80px;
       background-color: var(--card-bg);
       color: var(--text-main);
       border: 4px solid var(--card-border);
-      border-right: none;
-      border-top-left-radius: 16px;
-      border-bottom-left-radius: 16px;
       cursor: pointer;
       font-size: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 10;
+      transition: background-color 0.3s, border-color 0.3s;
     }
 
-    #rightSidebar.collapsed { width: 0; padding: 0; border-left: none; }
-    #rightSidebar.collapsed #rightSidebarToggleBtn { left: 0; border-left: none; border-right: 4px solid var(--card-border); border-radius: 0 16px 16px 0; }
-    #rightSidebarToggleBtn.collapsed-arrow::before { content: '◀'; }
-    #rightSidebarToggleBtn:not(.collapsed-arrow)::before { content: '▶'; }
+    #leftSidebarToggleBtn {
+      left: 0;
+      border-left: none;
+      border-radius: 0 16px 16px 0;
+    }
+
+    #rightSidebarToggleBtn {
+      right: 0;
+      border-right: none;
+      border-radius: 16px 0 0 16px;
+    }
+
+    #leftSidebarToggleBtn:hover, #rightSidebarToggleBtn:hover {
+      background-color: var(--box-bg);
+    }
 
     #sidebar h3, #rightSidebar h3 { margin-top: 0; font-size: 18px; border-bottom: 3px dashed var(--card-border); padding-bottom: 10px; }
 
@@ -385,8 +389,8 @@
       border: none; 
       border-bottom: 4px solid var(--card-border); 
     }
-    #rightSidebarToggleBtn { display: none; }
-    #rightSidebar.collapsed { width: 100%; padding: 20px; }
+    .toggle-wrapper { display: none; }
+    #sidebar.collapsed, #rightSidebar.collapsed { width: 100%; padding: 20px; border-bottom: 4px solid var(--card-border); }
     #mainContent {
       height: auto;
       overflow-y: visible;
@@ -517,6 +521,10 @@
             </div>
         </details>
     </div>
+  </div>
+
+  <div class="toggle-wrapper">
+    <button id="leftSidebarToggleBtn" aria-label="Toggle Left Sidebar">◀</button>
   </div>
 
   <div id="mainContent">
@@ -817,96 +825,11 @@
 
   </div>
 
-  <dialog class="dashboard-dialog" id="cameraDialog">
-    <form id="cameraForm">
-      <h3>Add CCTV Camera</h3>
-      <label>Camera Name* <input type="text" id="camName" maxlength="60" required placeholder="e.g. Front Door" /></label>
-      <label>Feed Type* 
-        <select id="camFeedType">
-          <option value="image">Snapshot / MJPEG Image URL</option>
-          <option value="video">Video Stream URL</option>
-          <option value="iframe">Web Viewer (IFrame URL)</option>
-        </select>
-      </label>
-      <label>Feed URL* <input type="url" id="camUrl" required /></label>
-      <div style="display:flex; gap:10px;">
-        <label style="flex:1;">IP Address <input type="text" id="camIp" /></label>
-        <label style="flex:1;">Port <input type="number" id="camPort" /></label>
-      </div>
-      <label>Username <input type="text" id="camUsername" /></label>
-      <label>Password <input type="password" id="camPassword" /></label>
-      <label>Notes <input type="text" id="camNotes" /></label>
-      <div class="dialog-actions">
-        <button type="button" class="cancel-btn" id="cancelCameraBtn">Cancel</button>
-        <button type="submit">Save Camera</button>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog class="dashboard-dialog" id="countdownDialog">
-    <form id="countdownForm">
-      <h3>Add Countdown</h3>
-      <label>What's it about?* <input type="text" id="cdText" required /></label>
-      <label>Date* <input type="date" id="cdDate" required /></label>
-      <label style="flex-direction:row; align-items:center;">
-        <input type="checkbox" id="cdRepeatToggle" style="width:auto; margin-right:8px;" /> Repeats
-      </label>
-      <label id="cdRepeatFreqWrapper" style="display:none;">Repeat frequency
-        <select id="cdRepeatFreq">
-          <option value="yearly">Yearly</option>
-          <option value="monthly">Monthly</option>
-          <option value="weekly">Weekly</option>
-        </select>
-      </label>
-      <div class="dialog-actions">
-        <button type="button" class="cancel-btn" id="cancelCountdownBtn">Cancel</button>
-        <button type="submit">Save Countdown</button>
-      </div>
-    </form>
-  </dialog>
-
-  <!-- Income Goal Dialog -->
-  <dialog class="dashboard-dialog" id="incomeGoalDialog">
-    <form id="incomeGoalForm">
-      <h3>Set Monthly Income Goal</h3>
-      <label>Goal Amount ($)* <input type="number" id="goalAmountInput" step="0.01" required /></label>
-      <div class="dialog-actions">
-        <button type="button" class="cancel-btn" id="cancelGoalBtn">Cancel</button>
-        <button type="submit">Save Goal</button>
-      </div>
-    </form>
-  </dialog>
-
-  <!-- Edit Habit Dialog -->
-  <dialog class="dashboard-dialog" id="editHabitDialog">
-    <form id="editHabitForm">
-      <h3>Edit Habit</h3>
-      <input type="hidden" id="editHabitId" />
-      <label>Habit Name* <input type="text" id="editHabitName" required /></label>
-      <label>Category
-          <select id="editHabitCategory">
-              <option value="General">General</option>
-              <option value="Business">Business</option>
-              <option value="Health">Health</option>
-              <option value="House">House</option>
-              <option value="Family">Family</option>
-              <option value="School">School</option>
-              <option value="E-commerce">E-commerce</option>
-              <option value="Social Media">Social Media</option>
-          </select>
-      </label>
-      <label>Time* <input type="time" id="editHabitTime" required /></label>
-      <label>Duration (Mins)* <input type="number" id="editHabitDuration" min="1" required /></label>
-      <div class="dialog-actions">
-        <button type="button" class="cancel-btn" id="cancelEditHabitBtn">Cancel</button>
-        <button type="submit">Save Changes</button>
-      </div>
-    </form>
-  </dialog>
+  <div class="toggle-wrapper">
+    <button id="rightSidebarToggleBtn" aria-label="Toggle Right Sidebar">▶</button>
+  </div>
 
   <div id="rightSidebar">
-    <button id="rightSidebarToggleBtn" aria-label="Toggle Sidebar"></button>
-
     <div id="notepadCollapsible" class="collapsible-section">
         <details open> <summary>📝 Notepad</summary>
             <div class="collapsible-content">
@@ -1025,6 +948,12 @@
     const moonPhaseDisplay = document.getElementById('moonPhaseDisplay');
     const darkThemeToggle = document.getElementById('darkThemeToggle');
 
+    // Toggle Sidebar Variables
+    const leftSidebarToggleBtn = document.getElementById('leftSidebarToggleBtn');
+    const rightSidebarToggleBtn = document.getElementById('rightSidebarToggleBtn');
+    const sidebar = document.getElementById('sidebar');
+    const rightSidebar = document.getElementById('rightSidebar');
+
     // Goals Variables
     const goalInput = document.getElementById('goalInput');
     const activeGoalsList = document.getElementById('activeGoalsList');
@@ -1049,8 +978,6 @@
     const holidayTextEl = document.getElementById('holidayText');
     const yearEndCountdownValueEl = document.getElementById('yearEndCountdownValue');
     
-    const rightSidebar = document.getElementById('rightSidebar');
-    const rightSidebarToggleBtn = document.getElementById('rightSidebarToggleBtn');
     const notepad = document.getElementById('notepad');
     
     const calculatorDisplay = document.getElementById('calculatorDisplay');
@@ -1187,6 +1114,17 @@
     const GCAL_API_KEY = 'userGcalApiKey';
     const CAMERAS_KEY = 'userCctvCameras';
     const COUNTDOWNS_KEY = 'userCountdownsList';
+
+    // Toggle Sidebars Setup
+    leftSidebarToggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      leftSidebarToggleBtn.textContent = sidebar.classList.contains('collapsed') ? '▶' : '◀';
+    });
+
+    rightSidebarToggleBtn.addEventListener('click', () => {
+      rightSidebar.classList.toggle('collapsed');
+      rightSidebarToggleBtn.textContent = rightSidebar.classList.contains('collapsed') ? '◀' : '▶';
+    });
 
     function formatDateWithDay(date, timeZone) {
       const options = { year: 'numeric', month: 'short', day: 'numeric', weekday: 'short', timeZone };
@@ -2611,8 +2549,6 @@
     todoInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') addTodoItem(todoInput.value); });
     todoList.addEventListener('change', (e) => { if (e.target.type === 'checkbox') toggleTodoItem(parseInt(e.target.closest('li').dataset.index)); });
     notepad.addEventListener('input', () => localStorage.setItem(NOTEPAD_KEY, notepad.value));
-
-    rightSidebarToggleBtn.addEventListener('click', () => rightSidebar.classList.toggle('collapsed'));
 
     calculatorButtons.addEventListener('click', (e) => {
       if (e.target.tagName !== 'BUTTON') return;
