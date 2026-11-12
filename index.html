@@ -501,6 +501,30 @@
     #mainContent { height: auto; overflow-y: visible; }
     .matrix-grid { grid-template-columns: 1fr; }
   }
+
+  /* ===== Phone & tablet fixes ===== */
+  /* Tablet sideways: slimmer sidebars so the middle column isn't squeezed */
+  @media (min-width: 851px) and (max-width: 1200px) {
+    :root { --sidebar-width: 220px; }
+    #sidebar, #rightSidebar { padding: 14px; }
+    #mainContent { padding: 16px; }
+    #localTime { font-size: min(5vw, 80px) !important; }
+  }
+  /* Smooth touch scrolling inside each column */
+  #sidebar, #rightSidebar, #mainContent, #goalTrackerView {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  /* Phone & tablet upright: let the whole page scroll instead of cutting it off */
+  @media (max-width: 850px) {
+    html, body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; }
+    #dashboardApp { overflow: visible; }
+    #goalTrackerView { height: auto; min-height: 100vh; overflow: visible; padding: 20px 12px 90px; }
+    #mainContent { padding: 16px; padding-bottom: 90px; }
+    #localTime { font-size: min(12vw, 80px) !important; }
+    /* keep the Goal Tracker / Dashboard switch button reachable */
+    #appSwitcherBtn { display: flex; left: 20px; opacity: 0.9; }
+  }
   </style>
 </head>
 <body>
