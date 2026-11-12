@@ -18,7 +18,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.webkit.WebViewAssetLoader;
+import java.io.InputStream;
 
 public class MainActivity extends Activity {
 
@@ -55,15 +55,20 @@ public class MainActivity extends Activity {
         s.setUseWideViewPort(true);
         s.setAllowFileAccess(false);
 
-        final WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder()
-                .setDomain(APP_HOST)
-                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
-                .build();
-
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                return assetLoader.shouldInterceptRequest(request.getUrl());
+                Uri uri = request.getUrl();
+                String path = uri.getPath();
+                if (!APP_HOST.equals(uri.getHost()) || path == null || !path.startsWith("/assets/")) return null;
+                try {
+                    InputStream in = getAssets().open(path.substring("/assets/".length()));
+                    String mime = path.endsWith(".html") ? "text/html" : path.endsWith(".js") ? "application/javascript"
+                            : path.endsWith(".css") ? "text/css" : "application/octet-stream";
+                    return new WebResourceResponse(mime, "UTF-8", in);
+                } catch (Exception e) {
+                    return null;
+                }
             }
 
             @Override
