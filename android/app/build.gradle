@@ -1,0 +1,58 @@
+plugins {
+    id 'com.android.application'
+}
+
+// The web app lives in index.html at the repo root.
+// It is copied into the APK's assets on every build, so editing index.html is all you need to do.
+def webAssetsDir = layout.buildDirectory.dir("webassets")
+tasks.register('copyWebApp', Copy) {
+    from(rootProject.file('../index.html'))
+    into(webAssetsDir)
+}
+preBuild.dependsOn('copyWebApp')
+
+android {
+    namespace 'com.kristinegreen.dashboard'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId 'com.kristinegreen.dashboard'
+        minSdk 26
+        targetSdk 34
+        versionCode((System.getenv('BUILD_NUMBER') ?: '1') as int)
+        versionName "1.0." + (System.getenv('BUILD_NUMBER') ?: '1')
+    }
+
+    signingConfigs {
+        // Same key every build, so new versions install over old ones without uninstalling.
+        shared {
+            storeFile rootProject.file('dashboard.keystore')
+            storePassword 'dashboard'
+            keyAlias 'dashboard'
+            keyPassword 'dashboard'
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.shared
+        }
+        debug {
+            signingConfig signingConfigs.shared
+        }
+    }
+
+    sourceSets {
+        main.assets.srcDirs += webAssetsDir
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.11.0'
+}
